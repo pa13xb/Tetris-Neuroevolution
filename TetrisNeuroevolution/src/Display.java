@@ -7,6 +7,7 @@ class Display extends JPanel {
     private int[][] gameBoard;
     private int width;
     private int height;
+    private boolean gameOver = false;
 
     Display(int width, int height, int tileSize, int[][] gameBoard){
         this.tileSize = tileSize;
@@ -29,8 +30,8 @@ class Display extends JPanel {
                 Color c = null;
                 if(colorIndex == 0) c = Color.black;
                 else if(colorIndex == 1) c = Color.blue;    //CornerLeft
-                else if(colorIndex == 2) c = Color.green;   //SguiggleRight
-                else if(colorIndex == 3) c = Color.red;     //SguiggleLeft
+                else if(colorIndex == 2) c = Color.green;   //SquiggleRight
+                else if(colorIndex == 3) c = Color.red;     //SquiggleLeft
                 else if(colorIndex == 4) c = Color.yellow;  //Square
                 else if(colorIndex == 5) c = Color.cyan;    //Line
                 else if(colorIndex == 6) c = Color.magenta; //Tshaped
@@ -42,7 +43,19 @@ class Display extends JPanel {
                 graphics.drawRect(col*tileSize,row*tileSize, tileSize, tileSize);
             }
         }
+        if(gameOver){
+            graphics.setColor(Color.black);
+            graphics.fillRect(30,(height / 2) * tileSize - 45, tileSize * 8, tileSize * 2);
+            graphics.setColor(Color.white);
+            graphics.drawRect(30,(height / 2) * tileSize - 45, tileSize * 8, tileSize * 2);
+            graphics.setFont(new Font("Arial", Font.PLAIN, 40));
+            graphics.drawString("Game Over!", 45, (height / 2) * tileSize);
+        }
     }//paint
+
+    public void setGameOver(boolean gameOver){
+        this.gameOver = gameOver;
+    }
 
     public void setGameBoard(int[][] gameBoard){
         this.gameBoard = gameBoard;

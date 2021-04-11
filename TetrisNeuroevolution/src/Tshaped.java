@@ -1,4 +1,4 @@
-public class Tshaped {
+public class Tshaped implements Tetromino{
 
     private int posX;
     private int posY;
@@ -7,8 +7,9 @@ public class Tshaped {
 
     public Tshaped(){
         rotation = 0;
-        posX = 0;
-        posY = 4;
+        posX = 4;
+        posY = 0;
+        blocks = new int[4][2];
         setBlocks(posX, posY);
     }//constructor
 
@@ -58,7 +59,7 @@ public class Tshaped {
             blocks[3][0] = x;
             blocks[3][1] = y - 1;
         }
-        else if(rotation == 3){
+        else {
             blocks[0][0] = x;
             blocks[0][1] = y;
 
@@ -83,6 +84,10 @@ public class Tshaped {
 
     public int getPosY() {
         return posY;
+    }
+
+    public int getColour(){
+        return 6;
     }
 
     public int[][] rotate(){

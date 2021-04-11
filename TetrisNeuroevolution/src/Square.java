@@ -1,12 +1,13 @@
-public class Square {
+public class Square implements Tetromino{
 
     private int posX;
     private int posY;
     private int[][] blocks;
 
     public Square(){
-        posX = 0;
-        posY = 4;
+        posX = 4;
+        posY = 0;
+        blocks = new int[4][2];
         setBlocks(posX, posY);
     }//constructor
 
@@ -40,6 +41,10 @@ public class Square {
 
     public int getPosY() {
         return posY;
+    }
+    
+    public int getColour(){
+        return 4;
     }
 
     public int[][] rotate(){ return blocks; }//rotate

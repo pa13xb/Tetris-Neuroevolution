@@ -1,4 +1,4 @@
-public class SquiggleLeft {
+public class SquiggleLeft implements Tetromino{
     private int posX;
     private int posY;
     private int[][] blocks;
@@ -6,8 +6,9 @@ public class SquiggleLeft {
 
     public SquiggleLeft() {
         rotation = 0;
-        posX = 0;
-        posY = 4;
+        posX = 4;
+        posY = 0;
+        blocks = new int[4][2];
         setBlocks(posX, posY);
     }//constructor
 
@@ -55,6 +56,10 @@ public class SquiggleLeft {
 
     public int getPosY() {
         return posY;
+    }
+
+    public int getColour(){
+        return 3;
     }
 
     public int[][] rotate() {
