@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.util.Scanner;
 
 class Main {
@@ -5,9 +6,14 @@ class Main {
     private Scanner scanner;
     private Neuroevolution neuralNet;
 
+    int tileSize = 30;
+    int width = 10;
+    int height = 20;
+
     private Main(){
         scanner = new Scanner(System.in);
         getNeuralNetwork();
+        Tetris tetris = new Tetris(true);
     }//constructor
 
     private void getNeuralNetwork(){

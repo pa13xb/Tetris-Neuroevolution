@@ -8,10 +8,12 @@ class Display extends JPanel {
     private int width;
     private int height;
 
-    Display(int xTiles, int yTiles, int tileSize, int[][] gameBoard){
+    Display(int width, int height, int tileSize, int[][] gameBoard){
         this.tileSize = tileSize;
+        this.width = width;
+        this.height = height;
         setSize(width*tileSize+1,height*tileSize+1);
-        setBounds(0,0,xTiles*tileSize+1,yTiles*tileSize+1);
+        setBounds(0,0,width*tileSize+1,height*tileSize+1);
         this.gameBoard = gameBoard;
     }//Display Constructor
 
@@ -20,34 +22,27 @@ class Display extends JPanel {
      * @param graphics the default graphics item
      */
     public void paint(Graphics graphics){
-        paintTiles(graphics);
-    }//paint
-
-    private void paintTiles(Graphics graphics){
-        int xSize = map.getSizeX();
-        int ySize = map.getSizeY();
-        Image image;
-        Tile[][] tiles = map.getTiles();
-        Terrain[][] terrains = map.getTerrains();
-        Building[][] buildings = map.getBuildings();
-        Unit[][] units = map.getUnits();
-
-        String path;
-    }
-
-    private Image getImage(String path,String folder){
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        if(path != "") {
-            return toolkit.getImage("C:\\Users\\phili\\Google_Drive\\Coding_Projects\\ColonizationRaw\\src\\Assets\\"+folder+"\\"+path+".png");
+        for(int row = 0; row < height; row++){
+            for(int col = 0; col < width; col++){
+                //Color c = new Color(255,125,125);
+                int colorIndex = gameBoard[row][col];
+                Color c = null;
+                if(colorIndex == 0) c = Color.black;
+                else if(colorIndex == 1) c = Color.blue;
+                else if(colorIndex == 2) c = Color.green;
+                else if(colorIndex == 3) c = Color.red;
+                else if(colorIndex == 4) c = Color.yellow;
+                else if(colorIndex == 5) c = Color.cyan;
+                else if(colorIndex == 6) c = Color.magenta;
+                else if(colorIndex == 7) c = Color.pink;
+                graphics.setColor(c);
+                graphics.fillRect(col*tileSize,row*tileSize, tileSize, tileSize);
+                graphics.drawRect(col*tileSize,row*tileSize, tileSize, tileSize);
+            }
         }
-        else return null;
-    }//drawSprite
+    }//paint
 
     public void setGameBoard(int[][] gameBoard){
         this.gameBoard = gameBoard;
-    }
-
-    public void mainMenu(Graphics graphics){
-
     }
 }
