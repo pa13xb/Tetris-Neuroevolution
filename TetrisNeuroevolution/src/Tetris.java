@@ -18,7 +18,7 @@ class Tetris {
         if(showDisplay) setupDisplay();
         else display = null;
     }//constructor
-    
+
     private void setupDisplay(){
         jFrame = new JFrame("Tetris");
         jFrame.setSize(width*tileSize+6,height*tileSize+35);
@@ -41,4 +41,6 @@ class Tetris {
         display.setGameBoard(gameBoard);
         display.repaint();
     }
+
+    
 }

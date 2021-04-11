@@ -28,15 +28,17 @@ class Display extends JPanel {
                 int colorIndex = gameBoard[row][col];
                 Color c = null;
                 if(colorIndex == 0) c = Color.black;
-                else if(colorIndex == 1) c = Color.blue;
-                else if(colorIndex == 2) c = Color.green;
-                else if(colorIndex == 3) c = Color.red;
-                else if(colorIndex == 4) c = Color.yellow;
-                else if(colorIndex == 5) c = Color.cyan;
-                else if(colorIndex == 6) c = Color.magenta;
-                else if(colorIndex == 7) c = Color.pink;
+                else if(colorIndex == 1) c = Color.blue;    //CornerLeft
+                else if(colorIndex == 2) c = Color.green;   //SguiggleRight
+                else if(colorIndex == 3) c = Color.red;     //SguiggleLeft
+                else if(colorIndex == 4) c = Color.yellow;  //Square
+                else if(colorIndex == 5) c = Color.cyan;    //Line
+                else if(colorIndex == 6) c = Color.magenta; //Tshaped
+                else if(colorIndex == 7) c = Color.orange;  //CornerRight
                 graphics.setColor(c);
                 graphics.fillRect(col*tileSize,row*tileSize, tileSize, tileSize);
+                graphics.drawRect(col*tileSize,row*tileSize, tileSize, tileSize);
+                graphics.setColor(Color.white);
                 graphics.drawRect(col*tileSize,row*tileSize, tileSize, tileSize);
             }
         }
