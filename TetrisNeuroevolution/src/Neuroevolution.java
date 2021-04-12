@@ -39,10 +39,10 @@ class Neuroevolution {
     private void generateRandomNetwork(){
         weightsAndBiases = new double[numLayers][][];
         for(int layer = 0; layer < numLayers; layer++){
-            weightsAndBiases[layer] = new double[layersAndNodes[layer] + 1][];
+            weightsAndBiases[layer] = new double[layersAndNodes[layer + 1]][];
             for(int node = 0; node < weightsAndBiases[layer].length; node++){
-                weightsAndBiases[layer][node] = new double[layersAndNodes[layer] + 1]; //+1 for bias
-                for(int connection = 0; connection < layersAndNodes[layer] + 1; connection++){
+                weightsAndBiases[layer][node] = new double[layersAndNodes[layer + 1] + 1]; //+1 for bias
+                for(int connection = 0; connection < layersAndNodes[layer + 1] + 1; connection++){
                     weightsAndBiases[layer][node][connection] = Math.random() * 2 - 1; //random value from (-1, 1)
                 }
             }
@@ -86,11 +86,11 @@ class Neuroevolution {
         for(int mutation = 0; mutation < numNetworks; mutation++){ //initialize results:
             double[][][] mutatedNetwork = new double[numLayers][][];
             for(int layer = 0; layer < numLayers; layer++){
-                mutatedNetwork[layer] = new double[layersAndNodes[layer] + 1][];
+                mutatedNetwork[layer] = new double[layersAndNodes[layer + 1]][];
                 for(int node = 0; node < mutatedNetwork[layer].length; node++){
-                    mutatedNetwork[layer][node] = new double[layersAndNodes[layer] + 1]; //+1 for bias
-                    for(int connection = 0; connection < layersAndNodes[layer] + 1; connection++){
-                        mutatedNetwork[layer][node][connection] = parent[layer][node][connection]; //random value from (-1, 1)
+                    mutatedNetwork[layer][node] = new double[layersAndNodes[layer + 1] + 1]; //+1 for bias
+                    for(int connection = 0; connection < layersAndNodes[layer + 1] + 1; connection++){
+                        mutatedNetwork[layer][node][connection] = parent[layer][node][connection];
                     }
                 }
             }
@@ -113,18 +113,57 @@ class Neuroevolution {
     private double applyMutation(){
         return Math.random() * 2 - 1; //random value between -1 and 1
     }
-    
+
     int calculate(int[] inputArray){
-        return (int)(Math.random() * 4);
+        double[][] activations = new double[weightsAndBiases.length][]; //includes input layer
+        activations[0] = new double[weightsAndBiases[0].length];
+        for(int node = 0; node < weightsAndBiases[0].length; node++){ //compute each node in first hidden layer
+            activations[0][node] = 0.0;
+            for(int connection = 0; connection < weightsAndBiases[0][node].length - 1; connection++){
+                activations[0][node] += weightsAndBiases[0][node][connection] * inputArray[connection]; //add weights * connections
+            }
+            activations[0][node] += weightsAndBiases[0][node][weightsAndBiases[0][node].length - 1]; //add bias
+            activations[0][node] = activationFunction(activations[0][node]);
+        }
+        for(int layer = 1; layer < weightsAndBiases.length; layer++){ //compute the rest of the layers
+            activations[layer] = new double[weightsAndBiases[layer].length];
+            for(int node = 0; node < activations[layer].length; node++){
+                activations[layer][node] = 0.0;
+                for(int connection = 0; connection < activations[layer - 1].length; connection++){
+                    activations[layer][node] += weightsAndBiases[layer-1][node][connection] * activations[layer - 1][connection]; //add weights * connections
+                }
+                activations[layer][node] += weightsAndBiases[layer-1][node][activations[layer - 1].length]; //add bias
+                activations[layer][node] = activationFunction(activations[0][node]);
+            }
+        }
+        int highestIndex = -1;
+        double highestValue = Double.MIN_VALUE;
+        for(int outputNum = 0; outputNum < activations[activations.length - 1].length; outputNum++){
+            if(activations[activations.length - 1][outputNum] > highestValue) {
+                highestValue = activations[activations.length - 1][outputNum];
+                highestIndex = outputNum;
+            }
+        }
+        return highestIndex;
     }
-    
+
+    /**This function performs the activation function in the neural network. Parameters can be changed here
+     *
+     * @param x the value to perform the activation function on
+     * @return double: the result of the activation function
+     */
+    private double activationFunction(double x){
+        //sigmoid:
+        return 1.0 / (1.0 + Math.exp(-x));
+    }
+
     public void train(int maxEpochs, int scoreGoal, int numGamesPerEpoch, boolean keepParent, int numNetworks, int numMutations){
         if(maxEpochs == -1 && scoreGoal == -1) maxEpochs = 100;
         int epoch = 0;
+        highScore = 0;
         for(;;){
             double[][][] parent = getWeightsAndBiases();
             double[][][][] networkPopulation = mutate(numNetworks, numMutations, keepParent, parent);
-            highScore = 0;
             int[] networkScores = new int[networkPopulation.length];
             for(int networkNum = 0; networkNum < networkPopulation.length; networkNum++){
                 setWeightsAndBiases(networkPopulation[networkNum]); //set the weights to this network one for Tetris calculation purposes
@@ -144,6 +183,7 @@ class Neuroevolution {
                 }
             }
             epoch++;
+            System.out.println("Epoch "+epoch+" complete, best score = "+bestScore);
             if(epoch >= maxEpochs && maxEpochs != -1) break;
             if(bestScore >= scoreGoal && scoreGoal != -1) break;
         }

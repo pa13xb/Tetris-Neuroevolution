@@ -301,7 +301,6 @@ class Tetris {
             display.gameOver(score);
             display.repaint();
         }
-        else System.out.println("Game over! Score = "+score);
     }
 
     private void playTurn(){
@@ -310,7 +309,6 @@ class Tetris {
             tetromino = getNewTetromino();
             newBlock = false;
             if (checkCollision(tetromino)) {
-                System.out.println("Collision");
                 gameOver = true;
             }
         } else { //lower the Tetromino
