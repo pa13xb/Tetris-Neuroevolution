@@ -8,6 +8,7 @@ class Display extends JPanel {
     private int width;
     private int height;
     private boolean gameOver = false;
+    private int score = 0;
 
     Display(int width, int height, int tileSize, int[][] gameBoard){
         this.tileSize = tileSize;
@@ -45,16 +46,23 @@ class Display extends JPanel {
         }
         if(gameOver){
             graphics.setColor(Color.black);
-            graphics.fillRect(30,(height / 2) * tileSize - 45, tileSize * 8, tileSize * 2);
+            graphics.fillRect(10,(height / 2) * tileSize - 45, width*tileSize - 20, tileSize * 4);
             graphics.setColor(Color.white);
-            graphics.drawRect(30,(height / 2) * tileSize - 45, tileSize * 8, tileSize * 2);
+            graphics.drawRect(10,(height / 2) * tileSize - 45, width*tileSize - 20, tileSize * 4);
             graphics.setFont(new Font("Arial", Font.PLAIN, 40));
             graphics.drawString("Game Over!", 45, (height / 2) * tileSize);
+            graphics.drawString("Score = "+score, 20, ((height / 2) * tileSize) + tileSize * 2);
         }
     }//paint
 
-    public void setGameOver(boolean gameOver){
-        this.gameOver = gameOver;
+    public void gameOver(int score){
+        this.gameOver = true;
+        this.score = score;
+    }
+    
+    public void reset(){
+        score = 0;
+        gameOver = false;
     }
 
     public void setGameBoard(int[][] gameBoard){
