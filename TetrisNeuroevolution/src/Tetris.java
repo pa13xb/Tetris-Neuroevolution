@@ -57,11 +57,11 @@ class Tetris {
                     System.out.println("Check");
                     display.reset();
                     playGame();
-                }//enter key*/
+                }*///enter key
                 if(keyCode == 27){ //escape key
                     quit = true;
                 }//escape key
-                if(keyCode == 39){ //right key
+                else if(keyCode == 39){ //right key
                     if(tetromino != null) {
                         int[][] blocks = tetromino.getBlocks();
                         for (int block = 0; block < 4; block++) { //delete tetromino from board
