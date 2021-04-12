@@ -62,6 +62,8 @@ public class SquiggleRight implements Tetromino{
         return 2;
     }
 
+    public int getRotation(){ return rotation;}
+
     public int[][] rotate() {
         rotation++;
         if (rotation == 2) rotation = 0;

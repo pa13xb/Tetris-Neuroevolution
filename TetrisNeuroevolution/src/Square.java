@@ -47,5 +47,7 @@ public class Square implements Tetromino{
         return 4;
     }
 
+    public int getRotation(){ return 0;}
+    
     public int[][] rotate(){ return blocks; }//rotate
 }

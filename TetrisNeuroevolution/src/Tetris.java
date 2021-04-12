@@ -22,11 +22,12 @@ class Tetris {
     private int newBlockDelay = 0;
     private int score = 0;
 
-    Tetris(boolean showDisplay) {
+    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution) {
         this.showDisplay = showDisplay;
         if (showDisplay) setupDisplay();
         else display = null;
-        playGame();
+        if(humanPlayer) humanPlayGame();
+        else AIPlayGame(neuroevolution);
     }//constructor
 
     private void setupDisplay() {
@@ -41,10 +42,14 @@ class Tetris {
         jFrame.add(display);
         display.setVisible(true);
         display.repaint();
-        jFrame.addKeyListener(addKeyboardListener());
-    }
+        jFrame.addKeyListener(makeKeyboardListener());
+    }//setupDisplay
 
-    private KeyListener addKeyboardListener(){
+    /**The keyboard listener functions to enable user control when playing using arrow keys and spacebar
+     *
+     * @return KeyListener the keyboard listener function to attach to a Jframe object
+     */
+    private KeyListener makeKeyboardListener(){
         KeyListener keyListener = new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -63,65 +68,21 @@ class Tetris {
                 }//escape key
                 else if(keyCode == 39){ //right key
                     if(tetromino != null) {
-                        int[][] blocks = tetromino.getBlocks();
-                        for (int block = 0; block < 4; block++) { //delete tetromino from board
-                            int posX = blocks[block][0];
-                            int posY = blocks[block][1];
-                            gameBoard[posY][posX] = 0;
-                        }
-                        tetromino.changePos(tetromino.getPosX() + 1, tetromino.getPosY());
-                        if (checkCollision(tetromino)) { //can't go to the right
-                            tetromino.changePos(tetromino.getPosX() - 1, tetromino.getPosY());
-                        }
-                        for (int block = 0; block < 4; block++) { //place new tetromino
-                            int posX = blocks[block][0];
-                            int posY = blocks[block][1];
-                            gameBoard[posY][posX] = tetromino.getColour();
-                        }
+                        moveRight();
                         display.setGameBoard(gameBoard);
                         display.repaint();
                     }
                 }//right key
                 else if(keyCode == 37) { //left key
                     if(tetromino != null) {
-                        int[][] blocks = tetromino.getBlocks();
-                        for (int block = 0; block < 4; block++) { //delete tetromino from board
-                            int posX = blocks[block][0];
-                            int posY = blocks[block][1];
-                            gameBoard[posY][posX] = 0;
-                        }
-                        tetromino.changePos(tetromino.getPosX() - 1, tetromino.getPosY());
-                        if (checkCollision(tetromino)) { //can't go to the right
-                            tetromino.changePos(tetromino.getPosX() + 1, tetromino.getPosY());
-                        }
-                        for (int block = 0; block < 4; block++) { //place new tetromino
-                            int posX = blocks[block][0];
-                            int posY = blocks[block][1];
-                            gameBoard[posY][posX] = tetromino.getColour();
-                        }
+                        moveLeft();
                         display.setGameBoard(gameBoard);
                         display.repaint();
                     }
                 }//left key
                 else if(keyCode == 38) { //up key (for rotate)
                     if(tetromino != null) {
-                        int[][] blocks = tetromino.getBlocks();
-                        for (int block = 0; block < 4; block++) { //delete tetromino from board
-                            int posX = blocks[block][0];
-                            int posY = blocks[block][1];
-                            gameBoard[posY][posX] = 0;
-                        }
-                        blocks = tetromino.rotate(); //the new orientation
-                        if (checkCollision(tetromino)) { //can't rotate
-                            tetromino.rotate();
-                            tetromino.rotate();
-                            blocks = tetromino.rotate(); //the original orientation
-                        }
-                        for (int block = 0; block < 4; block++) { //place new tetromino
-                            int posX = blocks[block][0];
-                            int posY = blocks[block][1];
-                            gameBoard[posY][posX] = tetromino.getColour();
-                        }
+                        rotate();
                         display.setGameBoard(gameBoard);
                         display.repaint();
                     }
@@ -135,25 +96,7 @@ class Tetris {
                 } //down key (increases animation speed)
                 else if(keyCode == 32) { //spacebar key
                     if(tetromino != null) {
-                        int[][] blocks = tetromino.getBlocks();
-                        for (int block = 0; block < 4; block++) { //delete tetromino
-                            int posX = blocks[block][0];
-                            int posY = blocks[block][1];
-                            gameBoard[posY][posX] = 0;
-                        }
-                        boolean collision = false;
-                        while(!collision) {
-                            tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() + 1);
-                            if (checkCollision(tetromino)) {
-                                tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() - 1);
-                                collision = true;
-                            }
-                        }
-                        for (int block = 0; block < 4; block++) { //place new tetromino
-                            int posX = blocks[block][0];
-                            int posY = blocks[block][1];
-                            gameBoard[posY][posX] = tetromino.getColour();
-                        }
+                        moveSpaceBar();
                         display.setGameBoard(gameBoard);
                         display.repaint();
                         int numRowsCleared = 0;
@@ -181,23 +124,104 @@ class Tetris {
         return keyListener;
     }//addKeyboardListener
 
-    private void playGame() {
+    private void moveRight(){
+        int[][] blocks = tetromino.getBlocks();
+        for (int block = 0; block < 4; block++) { //delete tetromino from board
+            int posX = blocks[block][0];
+            int posY = blocks[block][1];
+            gameBoard[posY][posX] = 0;
+        }
+        tetromino.changePos(tetromino.getPosX() + 1, tetromino.getPosY());
+        if (checkCollision(tetromino)) { //can't go to the right
+            tetromino.changePos(tetromino.getPosX() - 1, tetromino.getPosY());
+        }
+        for (int block = 0; block < 4; block++) { //place new tetromino
+            int posX = blocks[block][0];
+            int posY = blocks[block][1];
+            gameBoard[posY][posX] = tetromino.getColour();
+        }
+    }
+
+    private void moveLeft(){
+        int[][] blocks = tetromino.getBlocks();
+        for (int block = 0; block < 4; block++) { //delete tetromino from board
+            int posX = blocks[block][0];
+            int posY = blocks[block][1];
+            gameBoard[posY][posX] = 0;
+        }
+        tetromino.changePos(tetromino.getPosX() - 1, tetromino.getPosY());
+        if (checkCollision(tetromino)) { //can't go to the left
+            tetromino.changePos(tetromino.getPosX() + 1, tetromino.getPosY());
+        }
+        for (int block = 0; block < 4; block++) { //place new tetromino
+            int posX = blocks[block][0];
+            int posY = blocks[block][1];
+            gameBoard[posY][posX] = tetromino.getColour();
+        }
+    }
+
+    private void rotate(){
+        int[][] blocks = tetromino.getBlocks();
+        for (int block = 0; block < 4; block++) { //delete tetromino from board
+            int posX = blocks[block][0];
+            int posY = blocks[block][1];
+            gameBoard[posY][posX] = 0;
+        }
+        blocks = tetromino.rotate(); //the new orientation
+        if (checkCollision(tetromino)) { //can't rotate
+            tetromino.rotate();
+            tetromino.rotate();
+            blocks = tetromino.rotate(); //the original orientation
+        }
+        for (int block = 0; block < 4; block++) { //place new tetromino
+            int posX = blocks[block][0];
+            int posY = blocks[block][1];
+            gameBoard[posY][posX] = tetromino.getColour();
+        }
+    }
+
+    private void moveSpaceBar() {
+        int[][] blocks = tetromino.getBlocks();
+        for (int block = 0; block < 4; block++) { //delete tetromino
+            int posX = blocks[block][0];
+            int posY = blocks[block][1];
+            gameBoard[posY][posX] = 0;
+        }
+        boolean collision = false;
+        while(!collision) {
+            tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() + 1);
+            if (checkCollision(tetromino)) {
+                tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() - 1);
+                collision = true;
+            }
+        }
+        for (int block = 0; block < 4; block++) { //place new tetromino
+            int posX = blocks[block][0];
+            int posY = blocks[block][1];
+            gameBoard[posY][posX] = tetromino.getColour();
+        }
+    }
+
+    /**
+     * The main game-play loop
+     */
+    private void humanPlayGame() {
+        score = 0;
+        gameOver = false;
+        newBlock = true;
+        quit = false;
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 gameBoard[row][col] = 0;
             }
         }
-        if (showDisplay) {
-            display.setGameBoard(gameBoard);
-            display.repaint();
-        }
-        score = 0;
-        gameOver = false;
-        newBlock = true;
+        display.setGameBoard(gameBoard);
+        display.repaint();
         long startTime = System.currentTimeMillis();
         while (!gameOver && !quit) {
             long currentTime = System.currentTimeMillis();
-            boolean nextFrame = false;
+            boolean nextFrame;
+            nextFrame = false; //next bunch of lines control if the next frame is ready
             if (newBlock && currentTime - startTime > newBlockDelay) {
                 nextFrame = true;
                 if (!downArrow) newBlockDelay = 0;
@@ -205,65 +229,130 @@ class Tetris {
             if (newBlockDelay == 0 && newBlock) nextFrame = true;
             if (!newBlock) {
                 if (currentTime - startTime >= animationDelay) nextFrame = true;
-                else nextFrame = false;
             }
             if (nextFrame) {
                 startTime = currentTime;
-                boolean collision = false;
-                if (newBlock) {
-                    tetromino = getNewTetromino();
-                    newBlock = false;
-                    if (checkCollision(tetromino)) {
-                        System.out.println("Collision");
-                        gameOver = true;
+                playTurn();
+            }
+        }
+        display.gameOver(score);
+        display.repaint();
+    }//humanPlayGame
+
+    private void AIPlayGame(Neuroevolution neuroevolution){
+        score = 0;
+        gameOver = false;
+        newBlock = true;
+        while(!gameOver) {
+            if(showDisplay){
+                display.setGameBoard(gameBoard);
+                display.repaint();
+            }
+            playTurn();
+            //Get the input array for the AI:
+            if(tetromino != null && !gameOver) { //need to wait for a new tetramino to be placed
+                int[] inputArray = new int[4 + 7 + width * height * 2];
+                int index = 0;
+                int[] rotation = {0, 0, 0, 0};
+                rotation[tetromino.getRotation()] = 1;
+                for (int i = 0; i < 4; i++) {
+                    inputArray[index] = rotation[i];
+                    index++;
+                }
+                int[] type = {0, 0, 0, 0, 0, 0, 0};
+                type[tetromino.getColour() - 1] = 1; //-1 since colour indexes go from 1 to 7
+                for (int i = 0; i < 7; i++) {
+                    inputArray[index] = type[i];
+                    index++;
+                }
+                for (int row = 0; row < height; row++) {
+                    for (int col = 0; col < width; col++) {
+                        if (gameBoard[row][col] == 0) inputArray[index] = 0;
+                        else inputArray[index] = 1;
+                        index++;
                     }
-                } else { //moveTetromino
-                    int[][] blocks = tetromino.getBlocks();
-                    for (int block = 0; block < 4; block++) { //delete tetromino
-                        int posX = blocks[block][0];
-                        int posY = blocks[block][1];
-                        gameBoard[posY][posX] = 0;
-                    }
-                    tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() + 1);
-                    if (checkCollision(tetromino)) {
-                        collision = true;
-                        tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() - 1);
-                        newBlock = true;
+                }
+                int[][] blockLocations = new int[height][width];
+                for (int row = 0; row < height; row++) {
+                    for (int col = 0; col < width; col++) {
+                        blockLocations[row][col] = 0;
                     }
                 }
                 int[][] blocks = tetromino.getBlocks();
-                for (int block = 0; block < 4; block++) { //place new tetromino
-                    int posX = blocks[block][0];
-                    int posY = blocks[block][1];
-                    gameBoard[posY][posX] = tetromino.getColour();
+                for (int[] block : blocks) {
+                    int blockCol = block[0];
+                    int blockRow = block[1];
+                    blockLocations[blockRow][blockCol] = 1;
                 }
-
-                if (collision) {
-                    int numRowsCleared = 0;
-                    for (int row = 0; row < height; row++) {
-                        if (checkFullLine(row)) numRowsCleared++; //check for full lines to delete
+                for (int row = 0; row < height; row++) {
+                    for (int col = 0; col < width; col++) {
+                        inputArray[index] = blockLocations[row][col];
+                        index++;
                     }
-                    if (numRowsCleared == 1) score += 40;
-                    if (numRowsCleared == 2) score += 100;
-                    if (numRowsCleared == 3) score += 300;
-                    if (numRowsCleared == 4) score += 1200;
                 }
-
-                if (showDisplay) {
-                    display.setGameBoard(gameBoard);
-                    display.repaint();
-                }
-                //if(checkCollision(tetromino)) alive = false;
+                int move = neuroevolution.calculate(inputArray); //use the input array to calculate a move
+                if (move == 0) moveRight();
+                else if (move == 1) moveLeft();
+                else if (move == 2) rotate();
+                else moveSpaceBar();
             }
         }
-        if (showDisplay) {
+        if(showDisplay){
             display.gameOver(score);
             display.repaint();
         }
-        System.out.println("Game over!");
-    }//playGame
+        else System.out.println("Game over! Score = "+score);
+    }
 
-    public int getScore(){
+    private void playTurn(){
+        boolean collision = false;
+        if (newBlock) {
+            tetromino = getNewTetromino();
+            newBlock = false;
+            if (checkCollision(tetromino)) {
+                System.out.println("Collision");
+                gameOver = true;
+            }
+        } else { //lower the Tetromino
+            int[][] blocks = tetromino.getBlocks();
+            for (int block = 0; block < 4; block++) { //delete tetromino
+                int posX = blocks[block][0];
+                int posY = blocks[block][1];
+                gameBoard[posY][posX] = 0;
+            }
+            tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() + 1);
+            if (checkCollision(tetromino)) {
+                collision = true;
+                tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() - 1);
+                newBlock = true;
+            }
+        }
+        int[][] blocks = tetromino.getBlocks();
+        for (int block = 0; block < 4; block++) { //place new tetromino
+            int posX = blocks[block][0];
+            int posY = blocks[block][1];
+            gameBoard[posY][posX] = tetromino.getColour();
+        }
+        if (collision) {
+            int numRowsCleared = 0;
+            for (int row = 0; row < height; row++) {
+                if (checkFullLine(row)) numRowsCleared++; //check for full lines to delete
+            }
+            if (numRowsCleared == 1) score += 40;
+            if (numRowsCleared == 2) score += 100;
+            if (numRowsCleared == 3) score += 300;
+            if (numRowsCleared == 4) score += 1200;
+            tetromino = null;
+        }
+
+        if (showDisplay) {
+            display.setGameBoard(gameBoard);
+            display.repaint();
+        }
+        //if(checkCollision(tetromino)) alive = false;
+    }
+
+    int getScore(){
         return score;
     }//getScore
 
@@ -280,6 +369,11 @@ class Tetris {
         return newTetromino;
     }//getNewTetromino
 
+    /**Checks for a collision of blocks, returns true if a collision occurred
+     *
+     * @param tetromino the Tetromino to compare to the gameBoard
+     * @return boolean representing if a collision was found
+     */
     private boolean checkCollision(Tetromino tetromino){
         int[][] blocks = tetromino.getBlocks();
         for(int blockNum = 0; blockNum < 4; blockNum++){
@@ -292,6 +386,12 @@ class Tetris {
         return false;
     }//checkCollision
 
+    /**Checks for a row of full blocks, deletes the row and moves above rows down
+     * Returns true if the row was full, false otherwise
+     *
+     * @param checkRow the row to check if full
+     * @return boolean representing if a row was full or not
+     */
     private boolean checkFullLine(int checkRow){
         for(int col = 0; col < width; col++){
             if(gameBoard[checkRow][col] == 0) return false;
@@ -304,8 +404,10 @@ class Tetris {
                 gameBoard[row][col] = gameBoard[row - 1][col];
             }
         }
-        display.setGameBoard(gameBoard);
-        display.repaint();
+        if(showDisplay) {
+            display.setGameBoard(gameBoard);
+            display.repaint();
+        }
         return true;
     }//checkFullLine
 }

@@ -62,6 +62,8 @@ public class Line implements Tetromino{
         return 5;
     }
 
+    public int getRotation(){ return rotation;}
+
     public int[][] rotate() {
         rotation++;
         if (rotation == 2) rotation = 0;

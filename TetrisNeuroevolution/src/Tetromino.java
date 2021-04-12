@@ -9,6 +9,8 @@ public interface Tetromino {
     public int getPosY();
     
     public int getColour();
-    
+
+    public int getRotation();
+
     public int[][] rotate();
 }

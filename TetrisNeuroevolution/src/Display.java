@@ -30,7 +30,7 @@ class Display extends JPanel {
                 int colorIndex = gameBoard[row][col];
                 Color c = null;
                 if(colorIndex == 0) c = Color.black;
-                else if(colorIndex == 1) c = Color.blue;    //CornerLeft
+                else if(colorIndex == 1) c = new Color(167, 0, 255); //CornerLeft
                 else if(colorIndex == 2) c = Color.green;   //SquiggleRight
                 else if(colorIndex == 3) c = Color.red;     //SquiggleLeft
                 else if(colorIndex == 4) c = Color.yellow;  //Square
@@ -51,6 +51,7 @@ class Display extends JPanel {
             graphics.drawRect(10,(height / 2) * tileSize - 45, width*tileSize - 20, tileSize * 4);
             graphics.setFont(new Font("Arial", Font.PLAIN, 40));
             graphics.drawString("Game Over!", 45, (height / 2) * tileSize);
+            graphics.setFont(new Font("Arial", Font.PLAIN, 30));
             graphics.drawString("Score = "+score, 20, ((height / 2) * tileSize) + tileSize * 2);
         }
     }//paint
@@ -59,7 +60,7 @@ class Display extends JPanel {
         this.gameOver = true;
         this.score = score;
     }
-    
+
     public void reset(){
         score = 0;
         gameOver = false;

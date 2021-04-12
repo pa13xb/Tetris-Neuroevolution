@@ -90,6 +90,8 @@ public class CornerLeft implements Tetromino{
         return 1;
     }
 
+    public int getRotation(){ return rotation;}
+
     public int[][] rotate(){
         rotation++;
         if(rotation == 4) rotation = 0;
