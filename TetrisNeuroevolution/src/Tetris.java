@@ -1,12 +1,10 @@
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 
 class Tetris {
 
     private int width = 10;
-    private int height = 20;
+    private int height = 22;
     private int tileSize = 30;
     private int gameBoard[][] = new int[height][width]; //0: empty, otherwise int represents colour
     private Display display;
@@ -21,35 +19,39 @@ class Tetris {
     private int originalAnimationDelay = animationDelay;
     private int newBlockDelay = 0;
     private int score = 0;
+    private int timeSurvived = 0;
+    private boolean controlArrows;
 
-    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution, boolean tetrominoPosInput) {
+    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution, boolean tetrominoPosInput, boolean controlArrows) {
         this.showDisplay = showDisplay;
         if (showDisplay) setupDisplay();
         else display = null;
-        if(humanPlayer) humanPlayGame();
+        this.controlArrows = controlArrows;
+        if (humanPlayer) humanPlayGame();
         else AIPlayGame(neuroevolution, tetrominoPosInput);
     }//constructor
 
     private void setupDisplay() {
         jFrame = new JFrame("Tetris");
-        jFrame.setSize(width * tileSize + 7, height * tileSize + 36);
+        jFrame.setSize(width * tileSize + 7, (height - 2) * tileSize + 36);
         jFrame.setLayout(null);
         jFrame.setDefaultCloseOperation(3);
         jFrame.setVisible(true);
         jFrame.setResizable(false);
         jFrame.setAlwaysOnTop(true);
-        display = new Display(width, height, tileSize, null);
+        display = new Display(width, (height), tileSize, null);
         jFrame.add(display);
         display.setVisible(true);
         display.repaint();
         jFrame.addKeyListener(makeKeyboardListener());
     }//setupDisplay
 
-    /**The keyboard listener functions to enable user control when playing using arrow keys and spacebar
+    /**
+     * The keyboard listener functions to enable user control when playing using arrow keys and spacebar
      *
      * @return KeyListener the keyboard listener function to attach to a Jframe object
      */
-    private KeyListener makeKeyboardListener(){
+    private KeyListener makeKeyboardListener() {
         KeyListener keyListener = new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -63,59 +65,60 @@ class Tetris {
                     display.reset();
                     playGame();
                 }*///enter key
-                if(keyCode == 27){ //escape key
+                if (keyCode == 27) { //escape key
                     quit = true;
                     close();
                 }//escape key
-                else if(keyCode == 39){ //right key
-                    if(tetromino != null) {
+                else if (keyCode == 39) { //right key
+                    if (tetromino != null) {
                         moveRight();
                         display.setGameBoard(gameBoard);
                         display.repaint();
                     }
                 }//right key
-                else if(keyCode == 37) { //left key
-                    if(tetromino != null) {
+                else if (keyCode == 37) { //left key
+                    if (tetromino != null) {
                         moveLeft();
                         display.setGameBoard(gameBoard);
                         display.repaint();
                     }
                 }//left key
-                else if(keyCode == 38) { //up key (for rotate)
-                    if(tetromino != null) {
+                else if (keyCode == 38) { //up key (for rotate)
+                    if (tetromino != null) {
                         rotate();
                         display.setGameBoard(gameBoard);
                         display.repaint();
                     }
                 }//up key (for rotate)
-                else if(keyCode == 40) { //down key (increases animation speed)
-                    if(tetromino != null) {
+                else if (keyCode == 40) { //down key (increases animation speed)
+                    if (tetromino != null) {
                         animationDelay = originalAnimationDelay / 5;
                         newBlockDelay = 500;
                         downArrow = true;
                     }
                 } //down key (increases animation speed)
-                else if(keyCode == 32) { //spacebar key
-                    if(tetromino != null) {
+                else if (keyCode == 32) { //spacebar key
+                    if (tetromino != null) {
                         moveSpaceBar();
                         display.setGameBoard(gameBoard);
                         display.repaint();
                         int numRowsCleared = 0;
-                        for(int row = 0; row < height; row++) {
-                            if(checkFullLine(row)) numRowsCleared++; //check for full lines to delete
+                        for (int row = 0; row < height; row++) {
+                            if (checkFullLine(row)) numRowsCleared++; //check for full lines to delete
                         }
-                        if(numRowsCleared == 1) score += 40;
-                        if(numRowsCleared == 2) score += 100;
-                        if(numRowsCleared == 3) score += 300;
-                        if(numRowsCleared == 4) score += 1200;
+                        if (numRowsCleared == 1) score += 40;
+                        if (numRowsCleared == 2) score += 100;
+                        if (numRowsCleared == 3) score += 300;
+                        if (numRowsCleared == 4) score += 1200;
                         newBlock = true;
                     }
                 }//spacebar key
             }
+
             @Override
             public void keyReleased(KeyEvent e) {
                 int keyCode = e.getKeyCode();
-                if(keyCode == 40) { //down key
+                if (keyCode == 40) { //down key
                     animationDelay = originalAnimationDelay;
                     downArrow = false;
                     newBlockDelay = 0;
@@ -125,7 +128,7 @@ class Tetris {
         return keyListener;
     }//addKeyboardListener
 
-    private void moveRight(){
+    private void moveRight() {
         int[][] blocks = tetromino.getBlocks();
         for (int block = 0; block < 4; block++) { //delete tetromino from board
             int posX = blocks[block][0];
@@ -143,7 +146,7 @@ class Tetris {
         }
     }
 
-    private void moveLeft(){
+    private void moveLeft() {
         int[][] blocks = tetromino.getBlocks();
         for (int block = 0; block < 4; block++) { //delete tetromino from board
             int posX = blocks[block][0];
@@ -161,7 +164,7 @@ class Tetris {
         }
     }
 
-    private void rotate(){
+    private void rotate() {
         int[][] blocks = tetromino.getBlocks();
         for (int block = 0; block < 4; block++) { //delete tetromino from board
             int posX = blocks[block][0];
@@ -189,10 +192,12 @@ class Tetris {
             gameBoard[posY][posX] = 0;
         }
         boolean collision = false;
-        while(!collision) {
+        while (!collision) {
             tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() + 1);
+            timeSurvived++;
             if (checkCollision(tetromino)) {
                 tetromino.changePos(tetromino.getPosX(), tetromino.getPosY() - 1);
+                timeSurvived--;
                 collision = true;
             }
         }
@@ -232,79 +237,120 @@ class Tetris {
                 if (currentTime - startTime >= animationDelay) nextFrame = true;
             }
             if (nextFrame) {
+                timeSurvived++;
+                //System.out.println(timeSurvived);
                 startTime = currentTime;
                 playTurn();
             }
         }
-        display.gameOver(score);
+        display.gameOver(score, timeSurvived);
         display.repaint();
     }//humanPlayGame
 
-    private void AIPlayGame(Neuroevolution neuroevolution, boolean tetrominoPosInput){
+    private void AIPlayGame(Neuroevolution neuroevolution, boolean tetrominoPosInput) {
         score = 0;
         gameOver = false;
         newBlock = true;
-        while(!gameOver) {
-            if(showDisplay){
-                display.setGameBoard(gameBoard);
-                display.repaint();
-            }
-            playTurn();
-            //Get the input array for the AI:
-            if(tetromino != null && !gameOver) { //need to wait for a new tetramino to be placed
-                int[] inputArray = new int[4 + 7 + width * height * 2];
-                int index = 0;
-                int[] rotation = {0, 0, 0, 0};
-                rotation[tetromino.getRotation()] = 1;
-                for (int i = 0; i < 4; i++) {
-                    inputArray[index] = rotation[i];
-                    index++;
-                }
-                int[] type = {0, 0, 0, 0, 0, 0, 0};
-                type[tetromino.getColour() - 1] = 1; //-1 since colour indexes go from 1 to 7
-                for (int i = 0; i < 7; i++) {
-                    inputArray[index] = type[i];
-                    index++;
-                }
-                for (int row = 0; row < height; row++) {
-                    for (int col = 0; col < width; col++) {
-                        if (gameBoard[row][col] == 0) inputArray[index] = 0;
-                        else inputArray[index] = 1;
-                        index++;
-                    }
-                }
-                int[][] blockLocations = new int[height][width];
-                for (int row = 0; row < height; row++) {
-                    for (int col = 0; col < width; col++) {
-                        blockLocations[row][col] = 0;
-                    }
-                }
-                int[][] blocks = tetromino.getBlocks();
-                for (int[] block : blocks) {
-                    int blockCol = block[0];
-                    int blockRow = block[1];
-                    blockLocations[blockRow][blockCol] = 1;
-                }
-                for (int row = 0; row < height; row++) {
-                    for (int col = 0; col < width; col++) {
-                        inputArray[index] = blockLocations[row][col];
-                        index++;
-                    }
-                }
-                int move = neuroevolution.calculate(inputArray); //use the input array to calculate a move
-                if (move == 0) moveRight();
-                else if (move == 1) moveLeft();
-                else if (move == 2) rotate();
-                else moveSpaceBar();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                gameBoard[row][col] = 0;
             }
         }
-        if(showDisplay){
-            display.gameOver(score);
+        long startTime = System.currentTimeMillis();
+        while (!gameOver) {
+            boolean nextFrame = false;
+            if (showDisplay) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - startTime > animationDelay / 4) {
+                    nextFrame = true;
+                    startTime = System.currentTimeMillis();
+                }
+            } else nextFrame = true;
+            if (nextFrame) {
+                timeSurvived++;
+                if (showDisplay) {
+                    display.setGameBoard(gameBoard);
+                    display.repaint();
+                }
+                playTurn();
+                //Get the input array for the AI:
+                /*if(wholeBoard){
+
+                }
+                else{ //topography
+
+                }*/
+                if (tetromino != null && !gameOver) { //need to wait for a new tetramino to be placed
+                    int[] inputArray = new int[4 + 7 + width * height * 2];
+                    int index = 0;
+                    int[] rotation = {0, 0, 0, 0};
+                    rotation[tetromino.getRotation()] = 1;
+                    for (int i = 0; i < 4; i++) {
+                        inputArray[index] = rotation[i];
+                        index++;
+                    }
+                    int[] type = {0, 0, 0, 0, 0, 0, 0};
+                    type[tetromino.getColour() - 1] = 1; //-1 since colour indexes go from 1 to 7
+                    for (int i = 0; i < 7; i++) {
+                        inputArray[index] = type[i];
+                        index++;
+                    }
+                    for (int row = 0; row < height; row++) {
+                        for (int col = 0; col < width; col++) {
+                            if (gameBoard[row][col] == 0) inputArray[index] = 0;
+                            else inputArray[index] = 1;
+                            index++;
+                        }
+                    }
+                    int[][] blockLocations = new int[height][width];
+                    for (int row = 0; row < height; row++) {
+                        for (int col = 0; col < width; col++) {
+                            blockLocations[row][col] = 0;
+                        }
+                    }
+                    int[][] blocks = tetromino.getBlocks();
+                    for (int[] block : blocks) {
+                        int blockCol = block[0];
+                        int blockRow = block[1];
+                        blockLocations[blockRow][blockCol] = 1;
+                    }
+                    for (int row = 0; row < height; row++) {
+                        for (int col = 0; col < width; col++) {
+                            inputArray[index] = blockLocations[row][col];
+                            index++;
+                        }
+                    }
+                    int move = neuroevolution.calculate(inputArray); //use the input array to calculate a move
+                    if (controlArrows) { //4 outputs
+                        if (move == 0) moveRight();
+                        else if (move == 1) moveLeft();
+                        else if (move == 2) rotate();
+                        else moveSpaceBar();
+                    } else { //40 outputs, 4 rotations per column, 10 columns total
+                        int blockRotation = move % 4;
+                        for(int r = 0; r < blockRotation; r++){
+                            rotate();
+                        }
+                        int column = move / 4;
+                        int moveAmount = 4 - column;
+                        if(moveAmount >= 0) { //we're going left
+                            for(int i = 0; i < moveAmount; i++) moveLeft();
+                        }
+                        else { //we're going right
+                            for (int i = 0; i < -moveAmount; i++) moveRight();
+                        }
+                        moveSpaceBar();
+                    }
+                }
+            }
+        }
+        if (showDisplay) {
+            display.gameOver(score, timeSurvived);
             display.repaint();
         }
     }
 
-    private void playTurn(){
+    private void playTurn() {
         boolean collision = false;
         if (newBlock) {
             tetromino = getNewTetromino();
@@ -351,9 +397,23 @@ class Tetris {
         //if(checkCollision(tetromino)) alive = false;
     }
 
-    int getScore(){
+    /**
+     * Getter for score
+     *
+     * @return the score
+     */
+    int getScore() {
         return score;
     }//getScore
+
+    /**
+     * Getter for time survived
+     *
+     * @return the number of frames survived
+     */
+    public int getTimeSurvived() {
+        return timeSurvived;
+    }//getTimeSurvived
 
     private Tetromino getNewTetromino() {
         int tetrominoIndex = (int) (Math.random() * 7 + 1);
@@ -368,49 +428,51 @@ class Tetris {
         return newTetromino;
     }//getNewTetromino
 
-    /**Checks for a collision of blocks, returns true if a collision occurred
+    /**
+     * Checks for a collision of blocks, returns true if a collision occurred
      *
      * @param tetromino the Tetromino to compare to the gameBoard
      * @return boolean representing if a collision was found
      */
-    private boolean checkCollision(Tetromino tetromino){
+    private boolean checkCollision(Tetromino tetromino) {
         int[][] blocks = tetromino.getBlocks();
-        for(int blockNum = 0; blockNum < 4; blockNum++){
+        for (int blockNum = 0; blockNum < 4; blockNum++) {
             int blockCol = blocks[blockNum][0];
             int blockRow = blocks[blockNum][1];
-            if(blockCol < 0 || blockCol >= width) return true; //out of bounds
-            if(blockRow < 0 || blockRow >= height) return true; //out of bounds
-            if(gameBoard[blockRow][blockCol] != 0) return true; //a block is there already
+            if (blockCol < 0 || blockCol >= width) return true; //out of bounds
+            if (blockRow < 0 || blockRow >= height) return true; //out of bounds
+            if (gameBoard[blockRow][blockCol] != 0) return true; //a block is there already
         }
         return false;
     }//checkCollision
 
-    /**Checks for a row of full blocks, deletes the row and moves above rows down
+    /**
+     * Checks for a row of full blocks, deletes the row and moves above rows down
      * Returns true if the row was full, false otherwise
      *
      * @param checkRow the row to check if full
      * @return boolean representing if a row was full or not
      */
-    private boolean checkFullLine(int checkRow){
-        for(int col = 0; col < width; col++){
-            if(gameBoard[checkRow][col] == 0) return false;
+    private boolean checkFullLine(int checkRow) {
+        for (int col = 0; col < width; col++) {
+            if (gameBoard[checkRow][col] == 0) return false;
         }
-        for(int col = 0; col < width; col++){
+        for (int col = 0; col < width; col++) {
             gameBoard[checkRow][col] = 0;
         }
-        for(int row = checkRow; row > 0; row--) {
+        for (int row = checkRow; row > 0; row--) {
             for (int col = 0; col < width; col++) {
                 gameBoard[row][col] = gameBoard[row - 1][col];
             }
         }
-        if(showDisplay) {
+        if (showDisplay) {
             display.setGameBoard(gameBoard);
             display.repaint();
         }
         return true;
     }//checkFullLine
 
-    void close(){
+    void close() {
         jFrame.dispose();
     }
 }

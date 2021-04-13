@@ -7,7 +7,7 @@ public class SquiggleRight implements Tetromino{
     public SquiggleRight() {
         rotation = 0;
         posX = 4;
-        posY = 0;
+        posY = 2;
         blocks = new int[4][2];
         setBlocks(posX, posY);
     }//constructor

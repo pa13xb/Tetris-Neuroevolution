@@ -8,7 +8,7 @@ public class CornerRight implements Tetromino{
     public CornerRight(){
         rotation = 0;
         posX = 4;
-        posY = 0;
+        posY = 2;
         blocks = new int[4][2];
         setBlocks(posX, posY);
     }//constructor

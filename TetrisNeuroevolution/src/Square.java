@@ -6,7 +6,7 @@ public class Square implements Tetromino{
 
     public Square(){
         posX = 4;
-        posY = 0;
+        posY = 2;
         blocks = new int[4][2];
         setBlocks(posX, posY);
     }//constructor

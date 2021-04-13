@@ -9,13 +9,14 @@ class Display extends JPanel {
     private int height;
     private boolean gameOver = false;
     private int score = 0;
+    private int timeSurvived = 0;
 
     Display(int width, int height, int tileSize, int[][] gameBoard){
         this.tileSize = tileSize;
         this.width = width;
-        this.height = height;
-        setSize(width*tileSize+1,height*tileSize+1);
-        setBounds(0,0,width*tileSize+1,height*tileSize+1);
+        this.height = height-2;
+        setSize(width*tileSize+1,this.height*tileSize+1);
+        setBounds(0,0,width*tileSize+1,this.height*tileSize+1);
         this.gameBoard = gameBoard;
     }//Display Constructor
 
@@ -27,7 +28,12 @@ class Display extends JPanel {
         for(int row = 0; row < height; row++){
             for(int col = 0; col < width; col++){
                 //Color c = new Color(255,125,125);
-                int colorIndex = gameBoard[row][col];
+                int colorIndex = 0;
+                try{
+                    colorIndex = gameBoard[row+2][col];
+                } catch(NullPointerException e){
+                    System.out.println("Display error caught");
+                }
                 Color c = null;
                 if(colorIndex == 0) c = Color.black;
                 else if(colorIndex == 1) c = new Color(167, 0, 255); //CornerLeft
@@ -46,19 +52,22 @@ class Display extends JPanel {
         }
         if(gameOver){
             graphics.setColor(Color.black);
-            graphics.fillRect(10,(height / 2) * tileSize - 45, width*tileSize - 20, tileSize * 4);
+            graphics.fillRect(10,(height / 2) * tileSize - 45, width*tileSize - 20, tileSize * 6);
             graphics.setColor(Color.white);
-            graphics.drawRect(10,(height / 2) * tileSize - 45, width*tileSize - 20, tileSize * 4);
+            graphics.drawRect(10,(height / 2) * tileSize - 45, width*tileSize - 20, tileSize * 6);
             graphics.setFont(new Font("Arial", Font.PLAIN, 40));
             graphics.drawString("Game Over!", 45, (height / 2) * tileSize);
             graphics.setFont(new Font("Arial", Font.PLAIN, 30));
             graphics.drawString("Score = "+score, 20, ((height / 2) * tileSize) + tileSize * 2);
+            graphics.setFont(new Font("Arial", Font.PLAIN, 22));
+            graphics.drawString("Time Survived = "+timeSurvived, 20, ((height / 2) * tileSize) + tileSize * 4);
         }
     }//paint
 
-    public void gameOver(int score){
+    public void gameOver(int score, int timeSurvived){
         this.gameOver = true;
         this.score = score;
+        this.timeSurvived = timeSurvived;
     }
 
     public void reset(){
