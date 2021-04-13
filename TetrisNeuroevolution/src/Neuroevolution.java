@@ -15,7 +15,7 @@ class Neuroevolution {
     Neuroevolution(int[] layersAndNodes){
         this.layersAndNodes = layersAndNodes;
         numLayers = layersAndNodes.length - 1;
-        generateRandomNetwork();
+        weightsAndBiases = generateRandomNetwork();
     }//constructor1
 
     /**Other Constructor: takes a preset neural network
@@ -36,8 +36,8 @@ class Neuroevolution {
      *
      * @return double[][][] the array of weights and biases
      */
-    private void generateRandomNetwork(){
-        weightsAndBiases = new double[numLayers][][];
+    private double[][][] generateRandomNetwork(){
+        double[][][] weightsAndBiases = new double[numLayers][][];
         for(int layer = 0; layer < numLayers; layer++){
             weightsAndBiases[layer] = new double[layersAndNodes[layer + 1]][];
             for(int node = 0; node < weightsAndBiases[layer].length; node++){
@@ -47,6 +47,7 @@ class Neuroevolution {
                 }
             }
         }
+        return weightsAndBiases;
     }//generateRandomNetwork
 
     /**Allows inputting a network into the class.
@@ -79,10 +80,11 @@ class Neuroevolution {
      * @param numMutations the number of mutations to make on each new network
      * @return double[][][][] an array of network weightsAndBiases
      */
-    double[][][][] mutate(int numNetworks, int numMutations, boolean keepParent, double[][][] parent){
+    double[][][][] mutate(int numNetworks, int numMutations, boolean keepParent, double[][][] parent, int numRandomMembers){
         double[][][][] result;
-        if(keepParent) result = new double[numNetworks + 1][weightsAndBiases.length][][]; //+1 for parent
-        else result = new double[numNetworks][weightsAndBiases.length][][];
+        int populationSize = numNetworks + numRandomMembers;
+        if(keepParent) populationSize++;
+        result = new double[populationSize][weightsAndBiases.length][][]; //+1 for parent
         for(int mutation = 0; mutation < numNetworks; mutation++){ //initialize results:
             double[][][] mutatedNetwork = new double[numLayers][][];
             for(int layer = 0; layer < numLayers; layer++){
@@ -102,7 +104,13 @@ class Neuroevolution {
             }
             result[mutation] = mutatedNetwork;
         }
-        if(keepParent) result[numNetworks] = parent;
+        if(keepParent) {
+            result[numNetworks] = parent;
+            numNetworks++;
+        }
+        for(int i = 0; i < numRandomMembers; i++){ //add new random members to the population
+            result[numNetworks + i] = generateRandomNetwork();
+        }
         return result;
     }//mutate
 
@@ -157,14 +165,27 @@ class Neuroevolution {
         return 1.0 / (1.0 + Math.exp(-x));
     }
 
-    public void train(int maxEpochs, int scoreGoal, int numGamesPerEpoch, boolean keepParent, int numNetworks, int numMutations){
+    /**The train function which trains the neuroevolution network by mutating the network into a new population,
+     * running the Tetris game with those networks, and using the best performer to repopulate the next population.
+     *
+     * @param maxEpochs the maximum epochs of each experiment
+     * @param scoreGoal the maximum goal of each experiment
+     * @param numGamesPerEpoch the number of games run in each epoch
+     * @param keepParent whether to include the parent in the next population
+     * @param numNetworks the number of new networks to mutate
+     * @param numMutations the number of mutations per new network
+     * @param numRandomMembers the number of additional random networks to add to the population
+     * @return a newline-delimited String of the best results per epoch
+     */
+    public String train(int maxEpochs, int scoreGoal, int numGamesPerEpoch, boolean keepParent, int numNetworks, int numMutations, int numRandomMembers){
         if(maxEpochs == -1 && scoreGoal == -1) maxEpochs = 100;
-        int epoch = 0;
         highScore = 0;
+        String results = "";
+        int epoch = 0;
         for(;;){
             double[][][] parent = getWeightsAndBiases();
-            double[][][][] networkPopulation = mutate(numNetworks, numMutations, keepParent, parent);
-            int[] networkScores = new int[networkPopulation.length];
+            double[][][][] networkPopulation = mutate(numNetworks, numMutations, keepParent, parent, numRandomMembers);
+            float[] aveNetworkScores = new float[networkPopulation.length];
             for(int networkNum = 0; networkNum < networkPopulation.length; networkNum++){
                 setWeightsAndBiases(networkPopulation[networkNum]); //set the weights to this network one for Tetris calculation purposes
                 int averageScore = 0;
@@ -173,19 +194,21 @@ class Neuroevolution {
                     averageScore += tetris.getScore();
                     if(tetris.getScore() > highScore) highScore = tetris.getScore();
                 }
-                networkScores[networkNum] = averageScore;
+                aveNetworkScores[networkNum] = (float)averageScore / (float)numGamesPerEpoch;
             }
-            int bestScore = 0;
+            float bestScore = 0;
             for(int networkNum = 0; networkNum < networkPopulation.length; networkNum++){
-                if(networkScores[networkNum] > bestScore){
-                    bestScore = networkScores[networkNum];
+                if(aveNetworkScores[networkNum] > bestScore){
+                    bestScore = aveNetworkScores[networkNum];
                     setWeightsAndBiases(networkPopulation[networkNum]); //make best one the parent for next time
                 }
             }
             epoch++;
-            System.out.println("Epoch "+epoch+" complete, best score = "+bestScore);
+            results = results.concat(bestScore+"\n");
+            System.out.println("Epoch "+epoch+" complete, best network's average score = "+bestScore);
             if(epoch >= maxEpochs && maxEpochs != -1) break;
             if(bestScore >= scoreGoal && scoreGoal != -1) break;
         }
+        return results;
     }//train
 }//Neuroevolution

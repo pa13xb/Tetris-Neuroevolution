@@ -65,6 +65,7 @@ class Tetris {
                 }*///enter key
                 if(keyCode == 27){ //escape key
                     quit = true;
+                    close();
                 }//escape key
                 else if(keyCode == 39){ //right key
                     if(tetromino != null) {
@@ -408,4 +409,8 @@ class Tetris {
         }
         return true;
     }//checkFullLine
+
+    void close(){
+        jFrame.dispose();
+    }
 }

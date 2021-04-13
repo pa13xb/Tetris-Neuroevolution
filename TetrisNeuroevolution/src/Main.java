@@ -1,27 +1,153 @@
 import javax.swing.*;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 class Main {
 
     private Scanner scanner;
-    private Neuroevolution neuralNet;
 
     int tileSize = 30;
     int width = 10;
     int height = 20;
 
+    //Parameters:
+    /*0: run program */
+    /*1*/ private boolean human = true;
+    /*2*/ private boolean display = true;
+    /*3*/ private int maxEpochs = 100;
+    /*4*/ private int scoreGoal = 1000;
+    /*5*/ private int gamesPerEpoch = 10;
+    /*6*/ private boolean keepParent = true;
+    /*7*/ private int numNetworks = 10;
+    /*8*/ private int numMutations = 30;
+    /*9*/ private int[] layersAndNodes = {200*2+4+7, 150, 30, 4};
+    /*8*/ private int numRandomMembers = 1; //number of new random networks to insert per epoch
+    /*8*/ private int numExperiments = 1;
+    /*99: quit program */
+
     private Main(){
         scanner = new Scanner(System.in);
-        getNeuralNetwork();
-        neuralNet.train(100,1000,10,true,10,30);
-        System.out.println("Highest score in training was "+neuralNet.getHighScore());
-        //Tetris tetris = new Tetris(true, true, null);
-        Tetris tetris = new Tetris(true, false, neuralNet);
+        boolean quit = false;
+        while(!quit){
+            int input;
+            System.out.println("0: Run new game/experiments\n99: Quit");
+            System.out.println("Or choose a parameter to modify:\n1: Human player = "+human+"\n2: Display a game "+
+                    "played by the best AI after the experiments = "+display);
+            System.out.println("3: Max epochs = "+maxEpochs+"\n4: Score goal = "+scoreGoal+"\n5: Games per epoch = "+gamesPerEpoch);
+            System.out.println("6: Keep parent in population = "+keepParent+"\n7: Number of new networks per population = "+numNetworks);
+            System.out.println("8: Number of mutations per new network = "+numMutations+"\n9: Modify neural network architecture");
+            System.out.println("10: Number of new random networks to insert per epoch = "+numRandomMembers);
+            System.out.println("11: Number of experiment repetitions = "+numExperiments);
+            try {
+                input = scanner.nextInt();
+                switch(input){
+                    case 0:
+                        runProgram();
+                        break;
+                    case 1:
+                        human = !human;
+                        break;
+                    case 2:
+                        display = !display;
+                        break;
+                    case 3:
+                        System.out.println("Enter max epochs:");
+                        input = scanner.nextInt();
+                        maxEpochs = input;
+                        break;
+                    case 4:
+                        System.out.println("Enter score goal:");
+                        input = scanner.nextInt();
+                        scoreGoal = input;
+                        break;
+                    case 5:
+                        System.out.println("Enter games per epoch:");
+                        input = scanner.nextInt();
+                        gamesPerEpoch = input;
+                        break;
+                    case 6:
+                        keepParent = !keepParent;
+                        break;
+                    case 7:
+                        System.out.println("Enter number of new networks per population:");
+                        input = scanner.nextInt();
+                        numNetworks = input;
+                        break;
+                    case 8:
+                        System.out.println("Enter number of mutations per new network:");
+                        input = scanner.nextInt();
+                        numMutations = input;
+                        break;
+                    case 9:
+                        System.out.println("Enter number of hidden layers:");
+                        input = scanner.nextInt();
+                        int[] newLayersAndNodes = new int[input + 2];
+                        newLayersAndNodes[0] = layersAndNodes[0]; //input nodes stay the same
+                        newLayersAndNodes[newLayersAndNodes.length - 1] = layersAndNodes[layersAndNodes.length-1]; //output stays the same
+                        for(int layer = 1; layer < newLayersAndNodes.length - 1; layer++){
+                            System.out.println("Enter number of nodes for hidden layer "+layer);
+                            input = scanner.nextInt();
+                            newLayersAndNodes[layer] = input;
+                        }
+                        layersAndNodes = newLayersAndNodes;
+                        break;
+                    case 10:
+                        System.out.println("Enter number of additional new random members per population:");
+                        input = scanner.nextInt();
+                        numRandomMembers = input;
+                        break;
+                    case 11:
+                        System.out.println("Enter number of experiments (repeating the whole setup) to run:");
+                        input = scanner.nextInt();
+                        numExperiments = input;
+                        break;
+                    case 99:
+                        quit = true;
+                        break;
+                }
+            } catch(InputMismatchException e){
+                System.out.println("Input must be an integer, try again");
+            }
+        }
+        System.out.println("Program exited by user");
     }//constructor
 
-    private void getNeuralNetwork(){
-        int[] layerAndNodes = {200*2 + 4 + 7, 150, 30, 4};
-        neuralNet = new Neuroevolution(layerAndNodes);
+    private void runProgram(){
+        if(human){
+            Tetris tetris = new Tetris(true,true, null);
+            System.out.println("Enter any key to close Tetris window");
+            scanner.next();
+            tetris.close();
+        }
+        else{
+            Neuroevolution neuralNet = null;
+            Neuroevolution[] neuralNetworks = new Neuroevolution[numExperiments];
+            String results = "";
+            for(int expNum = 0; expNum < numExperiments; expNum++) {
+                System.out.println("====================================\nExperiment #"+(expNum+1)+
+                        " of "+numExperiments+" beginning\n====================================");
+                neuralNet = new Neuroevolution(layersAndNodes);
+                results = results.concat(neuralNet.train(maxEpochs, scoreGoal, gamesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers)+"\n");
+                neuralNetworks[expNum] = neuralNet;
+            }
+            int bestScore = -1;
+            for(int expNum = 0; expNum < numExperiments; expNum++){
+                if(neuralNetworks[expNum].getHighScore() > bestScore){
+                    bestScore = neuralNetworks[expNum].getHighScore();
+                    neuralNet = neuralNetworks[expNum];
+                }
+            }
+            System.out.println("Printing results now: \n====================================\n");
+            System.out.println(results);
+            System.out.println("\n====================================\n");
+            System.out.println("Best score achieved = "+bestScore);
+            if (display) {
+                Tetris tetris = new Tetris(display, human, neuralNet);
+                System.out.println("Enter any key to close Tetris window");
+                scanner.next();
+                tetris.close();
+            }
+        }
     }
 
     public static void main(String[] args) {
