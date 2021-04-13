@@ -177,7 +177,7 @@ class Neuroevolution {
      * @param numRandomMembers the number of additional random networks to add to the population
      * @return a newline-delimited String of the best results per epoch
      */
-    public String train(int maxEpochs, int scoreGoal, int numGamesPerEpoch, boolean keepParent, int numNetworks, int numMutations, int numRandomMembers){
+    public String train(int maxEpochs, int scoreGoal, int numGamesPerEpoch, boolean keepParent, int numNetworks, int numMutations, int numRandomMembers, boolean tetrominoPosInput){
         if(maxEpochs == -1 && scoreGoal == -1) maxEpochs = 100;
         highScore = 0;
         String results = "";
@@ -190,7 +190,7 @@ class Neuroevolution {
                 setWeightsAndBiases(networkPopulation[networkNum]); //set the weights to this network one for Tetris calculation purposes
                 int averageScore = 0;
                 for(int gameNum = 0; gameNum < numGamesPerEpoch; gameNum++){
-                    Tetris tetris = new Tetris(false, false, this);
+                    Tetris tetris = new Tetris(false, false, this, tetrominoPosInput);
                     averageScore += tetris.getScore();
                     if(tetris.getScore() > highScore) highScore = tetris.getScore();
                 }

@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e885f11-bda6-4803-98ff-3f149d0399b6" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Neuroevolution.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Neuroevolution.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Tetris.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tetris.java" afterDir="false" />
@@ -22,11 +21,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="556">
-              <caret line="155" column="1" lean-forward="true" selection-start-line="155" selection-start-column="1" selection-end-line="155" selection-end-column="1" />
+            <state relative-caret-position="303">
+              <caret line="48" column="42" lean-forward="true" selection-start-line="48" selection-start-column="42" selection-end-line="48" selection-end-column="42" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#7147#7148#0" expanded="true" />
+                <element signature="e#7871#7872#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -35,8 +34,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Tetris.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="207">
-              <caret line="63" column="31" lean-forward="true" selection-start-line="63" selection-start-column="31" selection-end-line="63" selection-end-column="31" />
+            <state relative-caret-position="106">
+              <caret line="21" column="34" lean-forward="true" selection-start-line="21" selection-start-column="34" selection-end-line="21" selection-end-column="34" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#setupDisplay#0;class#Tetris#0" />
@@ -45,7 +44,6 @@
                 <element signature="method#rotate#0;class#Tetris#0" />
                 <element signature="method#moveSpaceBar#0;class#Tetris#0" />
                 <element signature="method#humanPlayGame#0;class#Tetris#0" />
-                <element signature="method#AIPlayGame#0;class#Tetris#0" />
                 <element signature="method#playTurn#0;class#Tetris#0" />
                 <element signature="method#getNewTetromino#0;class#Tetris#0" />
                 <element signature="e#16147#16148#0" expanded="true" />
@@ -58,8 +56,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Neuroevolution.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="183">
-              <caret line="205" column="20" lean-forward="true" selection-start-line="205" selection-start-column="20" selection-end-line="205" selection-end-column="20" />
+            <state relative-caret-position="253">
+              <caret line="184" column="16" lean-forward="true" selection-start-line="184" selection-start-column="16" selection-end-line="184" selection-end-column="16" />
               <folding>
                 <element signature="method#Neuroevolution#1;class#Neuroevolution#0" />
                 <element signature="e#5089#5090#0" expanded="true" />
@@ -116,10 +114,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-10" />
-    <option name="y" value="-10" />
-    <option name="width" value="1940" />
-    <option name="height" value="1050" />
+    <option name="x" value="2169" />
+    <option name="y" value="-18" />
+    <option name="width" value="1549" />
+    <option name="height" value="837" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -196,10 +194,9 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
-    <editor active="true" />
+    <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12416107" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.098614074" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -209,13 +206,13 @@
       <window_info anchor="bottom" id="Messages" order="0" weight="0.3286119" />
       <window_info anchor="bottom" id="Message" order="1" />
       <window_info anchor="bottom" id="Find" order="2" />
-      <window_info anchor="bottom" id="Run" order="3" weight="0.4716714" />
+      <window_info anchor="bottom" id="Run" order="3" sideWeight="0.49966422" weight="0.35969663" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.39943343" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" />
-      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5003358" side_tool="true" weight="0.470922" />
       <window_info anchor="bottom" id="Version Control" order="10" />
       <window_info anchor="right" id="CodeTogether" order="0" weight="0.3295302" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
@@ -361,10 +358,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$JAVA_JDK_8$/src.zip!/java/lang/String.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="431">
+          <caret line="2025" column="34" lean-forward="true" selection-start-line="2025" selection-start-column="34" selection-end-line="2025" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/Tetris.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="63" column="31" lean-forward="true" selection-start-line="63" selection-start-column="31" selection-end-line="63" selection-end-column="31" />
+        <state relative-caret-position="106">
+          <caret line="21" column="34" lean-forward="true" selection-start-line="21" selection-start-column="34" selection-end-line="21" selection-end-column="34" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#setupDisplay#0;class#Tetris#0" />
@@ -373,7 +377,6 @@
             <element signature="method#rotate#0;class#Tetris#0" />
             <element signature="method#moveSpaceBar#0;class#Tetris#0" />
             <element signature="method#humanPlayGame#0;class#Tetris#0" />
-            <element signature="method#AIPlayGame#0;class#Tetris#0" />
             <element signature="method#playTurn#0;class#Tetris#0" />
             <element signature="method#getNewTetromino#0;class#Tetris#0" />
             <element signature="e#16147#16148#0" expanded="true" />
@@ -382,17 +385,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$JAVA_JDK_8$/src.zip!/java/lang/String.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="431">
-          <caret line="2025" column="34" lean-forward="true" selection-start-line="2025" selection-start-column="34" selection-end-line="2025" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Neuroevolution.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="205" column="20" lean-forward="true" selection-start-line="205" selection-start-column="20" selection-end-line="205" selection-end-column="20" />
+        <state relative-caret-position="253">
+          <caret line="184" column="16" lean-forward="true" selection-start-line="184" selection-start-column="16" selection-end-line="184" selection-end-column="16" />
           <folding>
             <element signature="method#Neuroevolution#1;class#Neuroevolution#0" />
             <element signature="e#5089#5090#0" expanded="true" />
@@ -403,11 +399,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="556">
-          <caret line="155" column="1" lean-forward="true" selection-start-line="155" selection-start-column="1" selection-end-line="155" selection-end-column="1" />
+        <state relative-caret-position="303">
+          <caret line="48" column="42" lean-forward="true" selection-start-line="48" selection-start-column="42" selection-end-line="48" selection-end-column="42" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#7147#7148#0" expanded="true" />
+            <element signature="e#7871#7872#0" expanded="true" />
           </folding>
         </state>
       </provider>

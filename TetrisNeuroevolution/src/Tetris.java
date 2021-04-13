@@ -22,12 +22,12 @@ class Tetris {
     private int newBlockDelay = 0;
     private int score = 0;
 
-    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution) {
+    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution, boolean tetrominoPosInput) {
         this.showDisplay = showDisplay;
         if (showDisplay) setupDisplay();
         else display = null;
         if(humanPlayer) humanPlayGame();
-        else AIPlayGame(neuroevolution);
+        else AIPlayGame(neuroevolution, tetrominoPosInput);
     }//constructor
 
     private void setupDisplay() {
@@ -240,7 +240,7 @@ class Tetris {
         display.repaint();
     }//humanPlayGame
 
-    private void AIPlayGame(Neuroevolution neuroevolution){
+    private void AIPlayGame(Neuroevolution neuroevolution, boolean tetrominoPosInput){
         score = 0;
         gameOver = false;
         newBlock = true;

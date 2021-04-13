@@ -21,8 +21,9 @@ class Main {
     /*7*/ private int numNetworks = 10;
     /*8*/ private int numMutations = 30;
     /*9*/ private int[] layersAndNodes = {200*2+4+7, 150, 30, 4};
-    /*8*/ private int numRandomMembers = 1; //number of new random networks to insert per epoch
-    /*8*/ private int numExperiments = 1;
+    /*10*/ private int numRandomMembers = 1; //number of new random networks to insert per epoch
+    /*11*/ private int numExperiments = 1;
+    /*12*/ private boolean tetrominoPosInput = false; //toggles input of the tetromino's position binary gameboard
     /*99: quit program */
 
     private Main(){
@@ -31,13 +32,19 @@ class Main {
         while(!quit){
             int input;
             System.out.println("0: Run new game/experiments\n99: Quit");
-            System.out.println("Or choose a parameter to modify:\n1: Human player = "+human+"\n2: Display a game "+
-                    "played by the best AI after the experiments = "+display);
-            System.out.println("3: Max epochs = "+maxEpochs+"\n4: Score goal = "+scoreGoal+"\n5: Games per epoch = "+gamesPerEpoch);
-            System.out.println("6: Keep parent in population = "+keepParent+"\n7: Number of new networks per population = "+numNetworks);
-            System.out.println("8: Number of mutations per new network = "+numMutations+"\n9: Modify neural network architecture");
+            System.out.println("Or choose a parameter to modify:");
+            System.out.println("1: Human player = "+human);
+            System.out.println("2: Display a game played by the best AI after the experiments = "+display);
+            System.out.println("3: Max epochs = "+maxEpochs);
+            System.out.println("4: Score goal = "+scoreGoal);
+            System.out.println("5: Games per epoch = "+gamesPerEpoch);
+            System.out.println("6: Keep parent in population = "+keepParent);
+            System.out.println("7: Number of new networks per population = "+numNetworks);
+            System.out.println("8: Number of mutations per new network = "+numMutations);
+            System.out.println("9: Modify neural network architecture");
             System.out.println("10: Number of new random networks to insert per epoch = "+numRandomMembers);
             System.out.println("11: Number of experiment repetitions = "+numExperiments);
+            System.out.println("12: Include the tetromino's board position as an input = "+tetrominoPosInput);
             try {
                 input = scanner.nextInt();
                 switch(input){
@@ -101,6 +108,11 @@ class Main {
                         input = scanner.nextInt();
                         numExperiments = input;
                         break;
+                    case 12:
+                        tetrominoPosInput = !tetrominoPosInput;
+                        if(!tetrominoPosInput) layersAndNodes[0] = 100 * 2 + 4 + 7;
+                        else layersAndNodes[0] = 200 * 2 + 4 + 7;
+                        break;
                     case 99:
                         quit = true;
                         break;
@@ -114,7 +126,7 @@ class Main {
 
     private void runProgram(){
         if(human){
-            Tetris tetris = new Tetris(true,true, null);
+            Tetris tetris = new Tetris(true,true, null, tetrominoPosInput);
             System.out.println("Enter any key to close Tetris window");
             scanner.next();
             tetris.close();
@@ -127,7 +139,7 @@ class Main {
                 System.out.println("====================================\nExperiment #"+(expNum+1)+
                         " of "+numExperiments+" beginning\n====================================");
                 neuralNet = new Neuroevolution(layersAndNodes);
-                results = results.concat(neuralNet.train(maxEpochs, scoreGoal, gamesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers)+"\n");
+                results = results.concat(neuralNet.train(maxEpochs, scoreGoal, gamesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers, tetrominoPosInput)+"\n");
                 neuralNetworks[expNum] = neuralNet;
             }
             int bestScore = -1;
@@ -142,7 +154,7 @@ class Main {
             System.out.println("\n====================================\n");
             System.out.println("Best score achieved = "+bestScore);
             if (display) {
-                Tetris tetris = new Tetris(display, human, neuralNet);
+                Tetris tetris = new Tetris(display, human, neuralNet, tetrominoPosInput);
                 System.out.println("Enter any key to close Tetris window");
                 scanner.next();
                 tetris.close();
