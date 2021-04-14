@@ -43,7 +43,8 @@ class Main {
             System.out.println("6: Keep parent in population = "+keepParent);
             System.out.println("7: Number of new networks per population = "+numNetworks);
             System.out.println("8: Number of mutations per new network = "+numMutations);
-            System.out.println("9: Modify neural network architecture");
+            System.out.println("9: Modify neural network architecture. Current architecture:");
+            for(int layer : layersAndNodes) System.out.println(layer);
             System.out.println("10: Number of new random networks to insert per epoch = "+numRandomMembers);
             System.out.println("11: Number of experiment repetitions = "+numExperiments);
             System.out.println("12: Include the tetromino's board position as an input = "+tetrominoPosInput);
