@@ -29,10 +29,8 @@ class Display extends JPanel {
             for(int col = 0; col < width; col++){
                 //Color c = new Color(255,125,125);
                 int colorIndex = 0;
-                try{
+                if(gameBoard != null){
                     colorIndex = gameBoard[row+2][col];
-                } catch(NullPointerException e){
-                    System.out.println("Display error caught");
                 }
                 Color c = null;
                 if(colorIndex == 0) c = Color.black;
