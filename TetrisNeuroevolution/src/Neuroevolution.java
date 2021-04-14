@@ -165,7 +165,7 @@ class Neuroevolution {
     private double activationFunction(double x){
         //sigmoid:
         return 1.0 / (1.0 + Math.exp(-x));
-    }
+    }//activationFunction
 
     /**The train function which trains the neuroevolution network by mutating the network into a new population,
      * running the Tetris game with those networks, and using the best performer to repopulate the next population.
@@ -192,7 +192,7 @@ class Neuroevolution {
                 setWeightsAndBiases(networkPopulation[networkNum]); //set the weights to this network one for Tetris calculation purposes
                 int averageScore = 0;
                 for(int gameNum = 0; gameNum < numGamesPerEpoch; gameNum++){
-                    Tetris tetris = new Tetris(false, false, this, tetrominoPosInput, controlArrows);
+                    Tetris tetris = new Tetris(false, false, this, tetrominoPosInput, controlArrows, false);
                     if(usingScore) {
                         averageScore += tetris.getScore();
                         if(tetris.getScore() > highScore) highScore = tetris.getScore();
@@ -219,4 +219,45 @@ class Neuroevolution {
         }
         return results;
     }//train
+
+    public String trainSupervised(int maxEpochs, double errorGoal, int numGamesPerEpoch, boolean keepParent, int numNetworks, int numMutations, int numRandomMembers, boolean tetrominoPosInput, boolean controlArrows){
+        highScore = 0;
+        String results = "";
+        int epoch = 0;
+        for(;;){
+            double[][][] parent = getWeightsAndBiases();
+            double[][][][] networkPopulation = mutate(numNetworks, numMutations, keepParent, parent, numRandomMembers);
+            float[] aveNetworkErrors = new float[networkPopulation.length];
+            for(int networkNum = 0; networkNum < networkPopulation.length; networkNum++){
+                setWeightsAndBiases(networkPopulation[networkNum]); //set the weights to this network one for Tetris calculation purposes
+                int averageError = 0;
+                int numMovesPlayed = 0;
+                for(int gameNum = 0; gameNum < numGamesPerEpoch; gameNum++){
+                    Tetris tetris = new Tetris(false, false, this, tetrominoPosInput, controlArrows, true);
+                    tetris.AISetupGameBoard();
+                    while(!tetris.getGameOver()){
+                        double error = tetris.AIPlaySupervisedMove(this);
+                        if(error != -1){
+                            numMovesPlayed++;
+                            averageError += error;
+                        }
+                    }
+                }
+                aveNetworkErrors[networkNum] = (float)averageError / (float)numMovesPlayed;
+            }
+            float lowestError = Float.MAX_VALUE;
+            for(int networkNum = 0; networkNum < networkPopulation.length; networkNum++){
+                if(aveNetworkErrors[networkNum] < lowestError){
+                    lowestError = aveNetworkErrors[networkNum];
+                    setWeightsAndBiases(networkPopulation[networkNum]); //make best one the parent for next time
+                }
+            }
+            epoch++;
+            results = results.concat(lowestError+"\n");
+            System.out.println("Epoch "+epoch+" complete, best network's average error = "+lowestError);
+            if(epoch >= maxEpochs && maxEpochs != -1) break;
+            if(errorGoal >= lowestError && errorGoal != -1) break;
+        }
+        return results;
+    }
 }//Neuroevolution

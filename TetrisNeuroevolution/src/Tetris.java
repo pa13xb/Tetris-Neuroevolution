@@ -22,13 +22,15 @@ class Tetris {
     private int timeSurvived = 0;
     private boolean controlArrows;
 
-    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution, boolean tetrominoPosInput, boolean controlArrows) {
+    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution, boolean tetrominoPosInput, boolean controlArrows, boolean supervisedAI) {
         this.showDisplay = showDisplay;
         if (showDisplay) setupDisplay();
         else display = null;
         this.controlArrows = controlArrows;
-        if (humanPlayer) humanPlayGame();
-        else AIPlayGame(neuroevolution, tetrominoPosInput);
+        if(!supervisedAI) {
+            if (humanPlayer) humanPlayGame();
+            else AIPlayGame(neuroevolution, tetrominoPosInput);
+        }
     }//constructor
 
     private void setupDisplay() {
@@ -327,19 +329,7 @@ class Tetris {
                         else if (move == 2) rotate();
                         else moveSpaceBar();
                     } else { //40 outputs, 4 rotations per column, 10 columns total
-                        int blockRotation = move % 4;
-                        for(int r = 0; r < blockRotation; r++){
-                            rotate();
-                        }
-                        int column = move / 4;
-                        int moveAmount = 4 - column;
-                        if(moveAmount >= 0) { //we're going left
-                            for(int i = 0; i < moveAmount; i++) moveLeft();
-                        }
-                        else { //we're going right
-                            for (int i = 0; i < -moveAmount; i++) moveRight();
-                        }
-                        moveSpaceBar();
+                        makeAIMove(move);
                     }
                 }
             }
@@ -348,7 +338,96 @@ class Tetris {
             display.gameOver(score, timeSurvived);
             display.repaint();
         }
-    }
+    }//AIPlayGame
+
+    private void makeAIMove(int move){
+        int blockRotation = move % 4;
+        for (int r = 0; r < blockRotation; r++) {
+            rotate();
+        }
+        int column = move / 4;
+        int moveAmount = 4 - column;
+        if (moveAmount >= 0) { //we're going left
+            for (int i = 0; i < moveAmount; i++) moveLeft();
+        } else { //we're going right
+            for (int i = 0; i < -moveAmount; i++) moveRight();
+        }
+        moveSpaceBar();
+    }//makeAIMove
+
+    public void AISetupGameBoard() {
+        score = 0;
+        timeSurvived = 0;
+        gameOver = false;
+        newBlock = true;
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                gameBoard[row][col] = 0;
+            }
+        }
+    }//AISetupGameBoard
+
+    public double AIPlaySupervisedMove(Neuroevolution neuroevolution) {
+        timeSurvived++;
+        playTurn();
+        if (tetromino != null && !gameOver) { //need to wait for a new tetramino to be placed
+            int[] inputArray = new int[4 + 7 + width * height * 2];
+            int index = 0;
+            int[] rotation = {0, 0, 0, 0};
+            rotation[tetromino.getRotation()] = 1;
+            for (int i = 0; i < 4; i++) {
+                inputArray[index] = rotation[i];
+                index++;
+            }
+            int[] type = {0, 0, 0, 0, 0, 0, 0};
+            type[tetromino.getColour() - 1] = 1; //-1 since colour indexes go from 1 to 7
+            for (int i = 0; i < 7; i++) {
+                inputArray[index] = type[i];
+                index++;
+            }
+            for (int row = 0; row < height; row++) {
+                for (int col = 0; col < width; col++) {
+                    if (gameBoard[row][col] == 0) inputArray[index] = 0;
+                    else inputArray[index] = 1;
+                    index++;
+                }
+            }
+            int[][] blockLocations = new int[height][width];
+            for (int row = 0; row < height; row++) {
+                for (int col = 0; col < width; col++) {
+                    blockLocations[row][col] = 0;
+                }
+            }
+            int[][] blocks = tetromino.getBlocks();
+            for (int[] block : blocks) {
+                int blockCol = block[0];
+                int blockRow = block[1];
+                blockLocations[blockRow][blockCol] = 1;
+            }
+            for (int row = 0; row < height; row++) {
+                for (int col = 0; col < width; col++) {
+                    inputArray[index] = blockLocations[row][col];
+                    index++;
+                }
+            }
+            int move = neuroevolution.calculate(inputArray); //use the input array to calculate a move
+            double score = calculateMoveScore(move);
+            int optimalMove = findOptimalMove();
+            double optimalScore = calculateMoveScore(optimalMove);
+            {//perform a move
+                if (controlArrows) { //4 outputs
+                    if (optimalMove == 0) moveRight();
+                    else if (optimalMove == 1) moveLeft();
+                    else if (optimalMove == 2) rotate();
+                    else moveSpaceBar();
+                } else { //40 outputs, 4 rotations per column, 10 columns total
+                    makeAIMove(optimalMove);
+                }
+            }//perform a move
+            return optimalScore - score; //error
+        }
+        return -1;
+    }//AIPlaySupervisedMove
 
     private void playTurn() {
         boolean collision = false;
@@ -405,6 +484,183 @@ class Tetris {
     int getScore() {
         return score;
     }//getScore
+    
+    boolean getGameOver(){
+        return gameOver;
+    }
+
+    private int findOptimalMove(){
+        double maxScore = 0.0;
+        int moveIndex = -0;
+        for(int i = 0; i < 40; i++) {
+            double score = calculateMoveScore(i);
+            if(score > maxScore) {
+                maxScore = score;
+                moveIndex = i;
+            }
+        }
+        return moveIndex;
+    }//findOptimalMove
+
+    private double calculateMoveScore(int move) {
+        int holes, blocks, weightedBlocks, rowTransitions,removedLines,connectedHoles,columnTransitions;
+        int altitudeDifference,maximumWellDepth,sumWellDepths,pileHeight,landingHeight;
+        //save the previous board state and global variables:
+        Tetromino prevTetromino = tetromino;
+        int prevX = tetromino.getPosX();
+        int prevY = tetromino.getPosY();
+        int prevRotation = tetromino.getRotation();
+        int prevScore = score;
+        boolean savedNewBlockState = newBlock;
+        int[][] savedGameBoard = new int[height][width];
+        for(int row = 0; row < height; row++){
+            for(int col = 0; col < width; col++){
+                savedGameBoard[row][col] = gameBoard[row][col];
+            }
+        }//finished saving previous board state and global variables
+        makeAIMove(move); //record the move
+        landingHeight = height - tetromino.getPosY();
+        playTurn(); //perform game logic on the move
+        //evaluate the board position after the move:
+        pileHeight = 0;
+        for (int row = 2; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (gameBoard[row][col] != 0) {
+                    pileHeight = height - row;
+                    row = height;
+                    col = width;
+                }
+            }
+        }
+        holes = 0;
+        int startingRow = height - pileHeight;
+        boolean above = false;
+        blocks = 0;
+        weightedBlocks = 0;
+        boolean occupied = true;
+        rowTransitions = 0;
+        for (int row = startingRow; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (gameBoard[row][col] == 0) {
+                    holes++;
+                    if(occupied){
+                        occupied = false;
+                        rowTransitions++;
+                    }
+                }
+                else {
+                    blocks++;
+                    weightedBlocks += (height - row);
+                    if(!occupied){
+                        occupied = true;
+                        rowTransitions++;
+                    }
+                }
+            }
+            if(!occupied){
+                occupied = true;
+                rowTransitions++;
+            }
+        }
+        connectedHoles = 0;
+        boolean connectedHole = false;
+        occupied = false;
+        columnTransitions = 0;
+        for (int col = 0; col < width; col++) {
+            for (int row = startingRow; row < height; row++) {
+                if (gameBoard[row][col] == 0){
+                    if(!connectedHole) connectedHole = true;
+                    if(occupied){
+                        occupied = false;
+                        columnTransitions++;
+                    }
+                }
+                if (gameBoard[row][col] != 0){
+                    if(connectedHole) {
+                        connectedHole = false;
+                        connectedHoles++;
+                    }
+                    if(!occupied){
+                        occupied = true;
+                        columnTransitions++;
+                    }
+                }
+
+            }
+            if(!occupied){
+                occupied = true;
+                columnTransitions++;
+            }
+        }
+        removedLines = 0;
+        if(score - prevScore == 40) removedLines = 1;
+        else if(score - prevScore == 100) removedLines = 2;
+        else if(score - prevScore == 300) removedLines = 3;
+        else if(score - prevScore == 1200) removedLines = 4;
+        altitudeDifference = 0;
+        for (int col = 0; col < width; col++) {
+            int colAltitude = 0;
+            for (int row = (height - pileHeight); row < height; row++) {
+                if (gameBoard[row][col] == 0) {
+                    colAltitude++;
+                }
+                if (gameBoard[row][col] != 0) {
+                    break;
+                }
+            }
+            if(colAltitude > altitudeDifference) altitudeDifference = colAltitude;
+        }
+        maximumWellDepth = 0;
+        int prev = 0;
+        int[] columnHeights = new int[width];
+        for (int col = 0; col < width; col++) {
+            for (int row = (height - pileHeight); row < height; row++) {
+                if (gameBoard[row][col] != 0) {
+                    columnHeights[col] = height - row;
+                    break;
+                }
+            }
+        }
+        sumWellDepths = 0;
+        for(int col = 0; col < width; col++){
+            int prevHeight = height;
+            int nextHeight = height;
+            int currentHeight = columnHeights[col];
+            int wellDepth = 0;
+            if(col > 0) prevHeight = columnHeights[col - 1];
+            if(col < width - 1) nextHeight = columnHeights[col + 1];
+            if(currentHeight < prevHeight && currentHeight < nextHeight){
+                if(prevHeight < nextHeight) wellDepth = prevHeight - currentHeight;
+                else wellDepth = nextHeight - currentHeight;
+                if(maximumWellDepth < wellDepth) maximumWellDepth = wellDepth;
+                sumWellDepths += wellDepth;
+            }
+        }
+        //evaluation finished
+        gameBoard = savedGameBoard;
+        score = prevScore;
+        newBlock = savedNewBlockState;
+        tetromino = prevTetromino;
+        tetromino.changePos(prevX, prevY);
+        for(int rotNum = 0; rotNum < tetromino.getRotation() - prevRotation; rotNum++){
+            tetromino.rotate();
+        }
+        double result = 0;
+        //holes, blocks, weightedBlocks, rowTransitions, removedLines, connectedHoles, columnTransitions;
+        //altitudeDifference, maximumWellDepth, sumWellDepths, pileHeight, landingHeight;
+        result += holes;
+        result += weightedBlocks;
+        result += rowTransitions;
+        result += removedLines;
+        result += connectedHoles;
+        result += columnTransitions;
+        result += altitudeDifference;
+        result += maximumWellDepth;
+        result += sumWellDepths;
+        result += pileHeight;
+        result += landingHeight;
+        return result;
+    }//calculateMoveScore
 
     /**
      * Getter for time survived
@@ -427,7 +683,7 @@ class Tetris {
         else newTetromino = new CornerRight();  //CornerRight
         return newTetromino;
     }//getNewTetromino
-
+    
     /**
      * Checks for a collision of blocks, returns true if a collision occurred
      *

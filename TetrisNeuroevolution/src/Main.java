@@ -25,7 +25,9 @@ class Main {
     /*11*/ private int numExperiments = 1;
     /*12*/ private boolean tetrominoPosInput = false; //toggles input of the tetromino's position binary gameboard
     /*13*/ private boolean useScore = false; //toggles evaluation using score or time survived
-    /*13*/ private boolean controlArrows = true; //toggles evaluation using score or time survived
+    /*14*/ private boolean controlArrows = true; //toggles evaluation using score or time survived
+    /*15*/ private boolean supervisedAI = true; //toggles evaluation using score or time survived
+    /*16*/ private double errorGoal = 0.5;
     /*99: quit program */
 
     private Main(){
@@ -50,6 +52,7 @@ class Main {
             System.out.println("12: Include the tetromino's board position as an input = "+tetrominoPosInput);
             System.out.println("13: Evaluate using score (true) or time survived (false) = "+useScore);
             System.out.println("14: AI controls arrows (true) or selections positions (false) = "+controlArrows);
+            System.out.println("15: Use supervised AI training = "+supervisedAI);
             try {
                 input = scanner.nextInt();
                 switch(input){
@@ -134,6 +137,13 @@ class Main {
                             layersAndNodes[layersAndNodes.length - 3] = 150;
                         }
                         break;
+                    case 15:
+                        supervisedAI = !supervisedAI;
+                        break;
+                    case 16:
+                        System.out.println("Enter number (floating point) for error goal:");
+                        errorGoal = scanner.nextDouble();
+                        break;
                     case 99:
                         quit = true;
                         break;
@@ -147,7 +157,7 @@ class Main {
 
     private void runProgram(){
         if(human){
-            Tetris tetris = new Tetris(true,true, null, tetrominoPosInput, controlArrows);
+            Tetris tetris = new Tetris(true,true, null, tetrominoPosInput, controlArrows, false);
             System.out.println("Enter any key to close Tetris window");
             scanner.next();
             tetris.close();
@@ -160,7 +170,8 @@ class Main {
                 System.out.println("====================================\nExperiment #"+(expNum+1)+
                         " of "+numExperiments+" beginning\n====================================");
                 neuralNet = new Neuroevolution(layersAndNodes);
-                results = results.concat(neuralNet.train(maxEpochs, scoreGoal, gamesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers, tetrominoPosInput, useScore, controlArrows)+"\n");
+                if(!supervisedAI) results = results.concat(neuralNet.train(maxEpochs, scoreGoal, gamesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers, tetrominoPosInput, useScore, controlArrows)+"\n");
+                else results = results.concat(neuralNet.trainSupervised(maxEpochs, errorGoal, gamesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers, tetrominoPosInput, controlArrows)+"\n");
                 neuralNetworks[expNum] = neuralNet;
             }
             int bestScore = -1;
@@ -175,7 +186,7 @@ class Main {
             System.out.println("\n====================================\n");
             System.out.println("Best score achieved = "+bestScore);
             if (display) {
-                Tetris tetris = new Tetris(display, human, neuralNet, tetrominoPosInput, controlArrows);
+                Tetris tetris = new Tetris(display, human, neuralNet, tetrominoPosInput, controlArrows, false);
                 System.out.println("Enter any key to close Tetris window");
                 scanner.next();
                 tetris.close();
