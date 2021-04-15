@@ -22,17 +22,31 @@ class Tetris {
     private int timeSurvived = 0;
     private boolean controlArrows;
 
-    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution, boolean tetrominoPosInput, boolean controlArrows, boolean supervisedAI) {
+    /**
+     * Constructor
+     * @param showDisplay boolean to enable game display
+     * @param humanPlayer boolean to enable human interaction
+     * @param neuroevolution the neural network used to play a game
+     * @param tetrominoPosInput boolean of whether to include a binary array representing the current tetramino's position
+     * @param controlArrows boolean to choose between AI controlling arrow keys or total moves (column + rotation)
+     * @param supervisedAI boolean to allow the external supervised learning class to control the game for training
+     * @param useOptimalMoves boolean to play a game using just the heuristic evaluation function's chosen moves
+     */
+    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution, boolean tetrominoPosInput, boolean controlArrows, boolean supervisedAI, boolean useOptimalMoves) {
         this.showDisplay = showDisplay;
         if (showDisplay) setupDisplay();
         else display = null;
         this.controlArrows = controlArrows;
         if(!supervisedAI) {
-            if (humanPlayer) humanPlayGame();
+            if(useOptimalMoves) playOptimalMoveGame();
+            else if (humanPlayer) humanPlayGame();
             else AIPlayGame(neuroevolution, tetrominoPosInput);
         }
     }//constructor
 
+    /**
+     * A function to setup the jFrame and display to show the game being played
+     */
     private void setupDisplay() {
         jFrame = new JFrame("Tetris");
         jFrame.setSize(width * tileSize + 7, (height - 2) * tileSize + 36);
@@ -130,6 +144,9 @@ class Tetris {
         return keyListener;
     }//addKeyboardListener
 
+    /**
+     * Carries out one right move
+     */
     private void moveRight() {
         int[][] blocks = tetromino.getBlocks();
         for (int block = 0; block < 4; block++) { //delete tetromino from board
@@ -146,8 +163,11 @@ class Tetris {
             int posY = blocks[block][1];
             gameBoard[posY][posX] = tetromino.getColour();
         }
-    }
+    }//moveRight
 
+    /**
+     * Carries out one left move
+     */
     private void moveLeft() {
         int[][] blocks = tetromino.getBlocks();
         for (int block = 0; block < 4; block++) { //delete tetromino from board
@@ -164,8 +184,11 @@ class Tetris {
             int posY = blocks[block][1];
             gameBoard[posY][posX] = tetromino.getColour();
         }
-    }
+    }//moveLeft
 
+    /**
+     * Carries out one rotation
+     */
     private void rotate() {
         int[][] blocks = tetromino.getBlocks();
         for (int block = 0; block < 4; block++) { //delete tetromino from board
@@ -184,8 +207,11 @@ class Tetris {
             int posY = blocks[block][1];
             gameBoard[posY][posX] = tetromino.getColour();
         }
-    }
+    }//rotate
 
+    /**
+     * Carries out the spaceBar move (all the way down)
+     */
     private void moveSpaceBar() {
         int[][] blocks = tetromino.getBlocks();
         for (int block = 0; block < 4; block++) { //delete tetromino
@@ -208,10 +234,10 @@ class Tetris {
             int posY = blocks[block][1];
             gameBoard[posY][posX] = tetromino.getColour();
         }
-    }
+    }//moveSpaceBar
 
     /**
-     * The main game-play loop
+     * The main game-play loop for a human-played game
      */
     private void humanPlayGame() {
         score = 0;
@@ -249,6 +275,11 @@ class Tetris {
         display.repaint();
     }//humanPlayGame
 
+    /**
+     * Plays a whole game using an AI
+     * @param neuroevolution  the AI to play the game
+     * @param tetrominoPosInput boolean whether to include the binary array describing the tetromino's position
+     */
     private void AIPlayGame(Neuroevolution neuroevolution, boolean tetrominoPosInput) {
         score = 0;
         gameOver = false;
@@ -275,13 +306,6 @@ class Tetris {
                     display.repaint();
                 }
                 playTurn();
-                //Get the input array for the AI:
-                /*if(wholeBoard){
-
-                }
-                else{ //topography
-
-                }*/
                 if (tetromino != null && !gameOver) { //need to wait for a new tetramino to be placed
                     int[] inputArray = new int[4 + 7 + width * height * 2];
                     int index = 0;
@@ -340,22 +364,100 @@ class Tetris {
         }
     }//AIPlayGame
 
+    /**
+     * Plays a game using the evaluation function's move choices
+     */
+    private void playOptimalMoveGame(){
+        AISetupGameBoard();
+        while(!gameOver) {
+            timeSurvived++;
+            playTurn();
+            if (tetromino != null && !gameOver) { //need to wait for a new tetramino to be placed
+                showDisplay = false;
+                int move = findOptimalMove();
+                showDisplay = true;
+                makeAIMove(move);
+            }
+        }
+        display.gameOver(getScore(), getTimeSurvived());
+        display.repaint();
+    }//playOptimalMoveGame
+
+    /**
+     * Carries out a move out of the 40 possible move choices (columns and rotations)
+     * Handles cases where the display is used or not
+     * @param move the move to carry out
+     */
     private void makeAIMove(int move){
-        int blockRotation = move % 4;
-        for (int r = 0; r < blockRotation; r++) {
-            rotate();
+        if(!showDisplay) {
+            int blockRotation = move % 4;
+            for (int r = 0; r < blockRotation; r++) {
+                rotate();
+            }
+            int column = move / 4;
+            int moveAmount = 4 - column;
+            if (moveAmount >= 0) { //we're going left
+                for (int i = 0; i < moveAmount; i++) moveLeft();
+            } else { //we're going right
+                for (int i = 0; i < -moveAmount; i++) moveRight();
+            }
+            moveSpaceBar();
         }
-        int column = move / 4;
-        int moveAmount = 4 - column;
-        if (moveAmount >= 0) { //we're going left
-            for (int i = 0; i < moveAmount; i++) moveLeft();
-        } else { //we're going right
-            for (int i = 0; i < -moveAmount; i++) moveRight();
+        else{
+            long startTime = System.currentTimeMillis();
+            long currentTime;
+            int blockRotation = move % 4;
+            for (int r = 0; r < blockRotation;) {
+                currentTime = System.currentTimeMillis();
+                if (currentTime - startTime > animationDelay / 4) {
+                    startTime = System.currentTimeMillis();
+                    rotate();
+                    r++;
+                    display.setGameBoard(gameBoard);
+                    display.repaint();
+                }
+            }
+            int column = move / 4;
+            int moveAmount = 4 - column;
+            if (moveAmount >= 0) { //we're going left
+                for (int i = 0; i < moveAmount;){
+                    currentTime = System.currentTimeMillis();
+                    if (currentTime - startTime > animationDelay / 4) {
+                        startTime = System.currentTimeMillis();
+                        moveLeft();
+                        i++;
+                        display.setGameBoard(gameBoard);
+                        display.repaint();
+                    }
+                }
+            } else { //we're going right
+                for (int i = 0; i < -moveAmount;) {
+                    currentTime = System.currentTimeMillis();
+                    if (currentTime - startTime > animationDelay / 4) {
+                        startTime = System.currentTimeMillis();
+                        moveRight();
+                        i++;
+                        display.setGameBoard(gameBoard);
+                        display.repaint();
+                    }
+                }
+            }
+            for(;;){
+                currentTime = System.currentTimeMillis();
+                if (currentTime - startTime > animationDelay / 4) {
+                    moveSpaceBar();
+                    display.setGameBoard(gameBoard);
+                    display.repaint();
+                    break;
+                }
+            }
         }
-        moveSpaceBar();
     }//makeAIMove
 
-    public void AISetupGameBoard() {
+    /**
+     * Sets up a gameBoard when not using the typical game loop
+     */
+    void AISetupGameBoard() {
         score = 0;
         timeSurvived = 0;
         gameOver = false;
@@ -367,54 +469,61 @@ class Tetris {
         }
     }//AISetupGameBoard
 
-    public double AIPlaySupervisedMove(Neuroevolution neuroevolution) {
+    /**
+     * Performs one turn of the AI when using supervised training
+     * @param neuroevolution the AI used to calculate the move
+     * @return //the error of the AI's move compared to the evaluation function
+     */
+    double AIPlaySupervisedMove(Neuroevolution neuroevolution) {
         timeSurvived++;
         playTurn();
         if (tetromino != null && !gameOver) { //need to wait for a new tetramino to be placed
             int[] inputArray = new int[4 + 7 + width * height * 2];
-            int index = 0;
-            int[] rotation = {0, 0, 0, 0};
-            rotation[tetromino.getRotation()] = 1;
-            for (int i = 0; i < 4; i++) {
-                inputArray[index] = rotation[i];
-                index++;
-            }
-            int[] type = {0, 0, 0, 0, 0, 0, 0};
-            type[tetromino.getColour() - 1] = 1; //-1 since colour indexes go from 1 to 7
-            for (int i = 0; i < 7; i++) {
-                inputArray[index] = type[i];
-                index++;
-            }
-            for (int row = 0; row < height; row++) {
-                for (int col = 0; col < width; col++) {
-                    if (gameBoard[row][col] == 0) inputArray[index] = 0;
-                    else inputArray[index] = 1;
+            {
+                int index = 0;
+                int[] rotation = {0, 0, 0, 0};
+                rotation[tetromino.getRotation()] = 1;
+                for (int i = 0; i < 4; i++) {
+                    inputArray[index] = rotation[i];
                     index++;
                 }
-            }
-            int[][] blockLocations = new int[height][width];
-            for (int row = 0; row < height; row++) {
-                for (int col = 0; col < width; col++) {
-                    blockLocations[row][col] = 0;
-                }
-            }
-            int[][] blocks = tetromino.getBlocks();
-            for (int[] block : blocks) {
-                int blockCol = block[0];
-                int blockRow = block[1];
-                blockLocations[blockRow][blockCol] = 1;
-            }
-            for (int row = 0; row < height; row++) {
-                for (int col = 0; col < width; col++) {
-                    inputArray[index] = blockLocations[row][col];
+                int[] type = {0, 0, 0, 0, 0, 0, 0};
+                type[tetromino.getColour() - 1] = 1; //-1 since colour indexes go from 1 to 7
+                for (int i = 0; i < 7; i++) {
+                    inputArray[index] = type[i];
                     index++;
                 }
-            }
+                for (int row = 0; row < height; row++) {
+                    for (int col = 0; col < width; col++) {
+                        if (gameBoard[row][col] == 0) inputArray[index] = 0;
+                        else inputArray[index] = 1;
+                        index++;
+                    }
+                }
+                int[][] blockLocations = new int[height][width];
+                for (int row = 0; row < height; row++) {
+                    for (int col = 0; col < width; col++) {
+                        blockLocations[row][col] = 0;
+                    }
+                }
+                int[][] blocks = tetromino.getBlocks();
+                for (int[] block : blocks) {
+                    int blockCol = block[0];
+                    int blockRow = block[1];
+                    blockLocations[blockRow][blockCol] = 1;
+                }
+                for (int row = 0; row < height; row++) {
+                    for (int col = 0; col < width; col++) {
+                        inputArray[index] = blockLocations[row][col];
+                        index++;
+                    }
+                }
+            } //getting input Array
             int move = neuroevolution.calculate(inputArray); //use the input array to calculate a move
-            double score = calculateMoveScore(move);
+            double score = calculateMoveScore(move); //higher score = bad
             int optimalMove = findOptimalMove();
             double optimalScore = calculateMoveScore(optimalMove);
-            {//perform a move
+            {//perform the optimal move
                 if (controlArrows) { //4 outputs
                     if (optimalMove == 0) moveRight();
                     else if (optimalMove == 1) moveLeft();
@@ -424,11 +533,15 @@ class Tetris {
                     makeAIMove(optimalMove);
                 }
             }//perform a move
-            return optimalScore - score; //error
+            return score - optimalScore; //error
         }
         return -1;
     }//AIPlaySupervisedMove
 
+    /**
+     * Performs one frame of a turn, moving the tetromino down one space, managing collisions,
+     * making a tetromino if needed, deleting and incrementing score if a line is cleared.
+     */
     private void playTurn() {
         boolean collision = false;
         if (newBlock) {
@@ -474,34 +587,31 @@ class Tetris {
             display.repaint();
         }
         //if(checkCollision(tetromino)) alive = false;
-    }
+    }//playTurn
 
     /**
-     * Getter for score
+     * Checks all 40 possible moves and returns the move with the lowest move score
      *
-     * @return the score
+     * @return the index of the move with the lowest score
      */
-    int getScore() {
-        return score;
-    }//getScore
-    
-    boolean getGameOver(){
-        return gameOver;
-    }
-
     private int findOptimalMove(){
-        double maxScore = 0.0;
-        int moveIndex = -0;
+        double minScore = Double.MAX_VALUE;
+        int moveIndex = 0;
         for(int i = 0; i < 40; i++) {
             double score = calculateMoveScore(i);
-            if(score > maxScore) {
-                maxScore = score;
+            if(score < minScore) {
+                minScore = score;
                 moveIndex = i;
             }
         }
         return moveIndex;
     }//findOptimalMove
 
+    /**
+     * Calculates the score of a move using an heuristic evaluation function of the board's layout after the move
+     * @param move the move to calculate
+     * @return the score (higher = worse) of the move
+     */
     private double calculateMoveScore(int move) {
         int holes, blocks, weightedBlocks, rowTransitions,removedLines,connectedHoles,columnTransitions;
         int altitudeDifference,maximumWellDepth,sumWellDepths,pileHeight,landingHeight;
@@ -646,9 +756,8 @@ class Tetris {
             tetromino.rotate();
         }
         double result = 0;
-        //holes, blocks, weightedBlocks, rowTransitions, removedLines, connectedHoles, columnTransitions;
-        //altitudeDifference, maximumWellDepth, sumWellDepths, pileHeight, landingHeight;
         result += holes;
+        result += blocks;
         result += weightedBlocks;
         result += rowTransitions;
         result += removedLines;
@@ -662,15 +771,7 @@ class Tetris {
         return result;
     }//calculateMoveScore
 
-    /**
-     * Getter for time survived
-     *
-     * @return the number of frames survived
-     */
-    public int getTimeSurvived() {
-        return timeSurvived;
-    }//getTimeSurvived
-
+    /**Creates a new random tetromino */
     private Tetromino getNewTetromino() {
         int tetrominoIndex = (int) (Math.random() * 7 + 1);
         Tetromino newTetromino;
@@ -727,6 +828,18 @@ class Tetris {
         }
         return true;
     }//checkFullLine
+
+    int getScore() {
+        return score;
+    }//getScore
+
+    boolean getGameOver(){
+        return gameOver;
+    }//getGameOver
+
+    int getTimeSurvived() {
+        return timeSurvived;
+    }//getTimeSurvived
 
     void close() {
         jFrame.dispose();

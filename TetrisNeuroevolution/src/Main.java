@@ -12,22 +12,24 @@ class Main {
 
     //Parameters:
     /*0: run program */
-    /*1*/ private boolean human = true;
+    /*1*/ private boolean human = false;
     /*2*/ private boolean display = true;
     /*3*/ private int maxEpochs = 100;
-    /*4*/ private int scoreGoal = 1000;
+    /*4*/ private int scoreGoal = 100000;
     /*5*/ private int gamesPerEpoch = 10;
     /*6*/ private boolean keepParent = true;
     /*7*/ private int numNetworks = 10;
     /*8*/ private int numMutations = 30;
-    /*9*/ private int[] layersAndNodes = {220+4+7, 150, 30, 4};
+    /*9*/ private int[] layersAndNodes = {220+4+7, 160, 120, 40};
     /*10*/ private int numRandomMembers = 1; //number of new random networks to insert per epoch
     /*11*/ private int numExperiments = 1;
     /*12*/ private boolean tetrominoPosInput = false; //toggles input of the tetromino's position binary gameboard
     /*13*/ private boolean useScore = false; //toggles evaluation using score or time survived
-    /*14*/ private boolean controlArrows = true; //toggles evaluation using score or time survived
+    /*14*/ private boolean controlArrows = false; //toggles evaluation using score or time survived
     /*15*/ private boolean supervisedAI = true; //toggles evaluation using score or time survived
     /*16*/ private double errorGoal = 0.5;
+    /*17*/ private boolean useOptimalMoves = false; //toggles usage of the optimal move function to play a game
+    /*18*/ private int movesPerEpoch = 1000; //number of games to play and evaluate for supervised learning
     /*99: quit program */
 
     private Main(){
@@ -41,18 +43,25 @@ class Main {
             System.out.println("2: Display a game played by the best AI after the experiments = "+display);
             System.out.println("3: Max epochs = "+maxEpochs);
             System.out.println("4: Score goal = "+scoreGoal);
-            System.out.println("5: Games per epoch = "+gamesPerEpoch);
+            System.out.println("5: Games per epoch (for unsupervised learning) = "+gamesPerEpoch);
             System.out.println("6: Keep parent in population = "+keepParent);
             System.out.println("7: Number of new networks per population = "+numNetworks);
             System.out.println("8: Number of mutations per new network = "+numMutations);
             System.out.println("9: Modify neural network architecture. Current architecture:");
-            for(int layer : layersAndNodes) System.out.println(layer);
+            System.out.println("Input Layer = "+layersAndNodes[0]);
+            for(int hiddenNum = 1; hiddenNum < layersAndNodes.length - 1; hiddenNum++){
+                System.out.println("Hidden Layer "+hiddenNum+" = "+layersAndNodes[hiddenNum]);
+            }
+            System.out.println("Output layer = "+layersAndNodes[layersAndNodes.length-1]);
             System.out.println("10: Number of new random networks to insert per epoch = "+numRandomMembers);
             System.out.println("11: Number of experiment repetitions = "+numExperiments);
             System.out.println("12: Include the tetromino's board position as an input = "+tetrominoPosInput);
             System.out.println("13: Evaluate using score (true) or time survived (false) = "+useScore);
             System.out.println("14: AI controls arrows (true) or selections positions (false) = "+controlArrows);
             System.out.println("15: Use supervised AI training = "+supervisedAI);
+            System.out.println("16: Error goal (for supervised learning) = "+errorGoal);
+            System.out.println("17: Use optimal moves to play a game = "+useOptimalMoves);
+            System.out.println("18: Number of moves per epoch (for supervised learning) = "+movesPerEpoch);
             try {
                 input = scanner.nextInt();
                 switch(input){
@@ -127,14 +136,14 @@ class Main {
                     case 14:
                         controlArrows = !controlArrows;
                         if(!controlArrows) {
-                            layersAndNodes[layersAndNodes.length - 1] = 40;
-                            layersAndNodes[layersAndNodes.length - 2] = 120;
-                            layersAndNodes[layersAndNodes.length - 3] = 200;
+                            layersAndNodes[1] = 160;
+                            layersAndNodes[2] = 120;
+                            layersAndNodes[3] = 40;
                         }
                         else {
-                            layersAndNodes[layersAndNodes.length - 1] = 4;
-                            layersAndNodes[layersAndNodes.length - 1] = 30;
-                            layersAndNodes[layersAndNodes.length - 3] = 150;
+                            layersAndNodes[1] = 150;
+                            layersAndNodes[2] = 30;
+                            layersAndNodes[3] = 4;
                         }
                         break;
                     case 15:
@@ -143,6 +152,14 @@ class Main {
                     case 16:
                         System.out.println("Enter number (floating point) for error goal:");
                         errorGoal = scanner.nextDouble();
+                        break;
+                    case 17:
+                        useOptimalMoves = !useOptimalMoves;
+                        break;
+                    case 18:
+                        System.out.println("Enter number of moves per epoch");
+                        input = scanner.nextInt();
+                        movesPerEpoch = input;
                         break;
                     case 99:
                         quit = true;
@@ -156,8 +173,14 @@ class Main {
     }//constructor
 
     private void runProgram(){
-        if(human){
-            Tetris tetris = new Tetris(true,true, null, tetrominoPosInput, controlArrows, false);
+        if(useOptimalMoves){ //to test our evaluation function
+            Tetris tetris = new Tetris(true,false, null, tetrominoPosInput, controlArrows, false, useOptimalMoves);
+            System.out.println("Enter any key to close Tetris window");
+            scanner.next();
+            tetris.close();
+        }
+        else if(human){
+            Tetris tetris = new Tetris(true,true, null, tetrominoPosInput, controlArrows, false, useOptimalMoves);
             System.out.println("Enter any key to close Tetris window");
             scanner.next();
             tetris.close();
@@ -171,7 +194,7 @@ class Main {
                         " of "+numExperiments+" beginning\n====================================");
                 neuralNet = new Neuroevolution(layersAndNodes);
                 if(!supervisedAI) results = results.concat(neuralNet.train(maxEpochs, scoreGoal, gamesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers, tetrominoPosInput, useScore, controlArrows)+"\n");
-                else results = results.concat(neuralNet.trainSupervised(maxEpochs, errorGoal, gamesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers, tetrominoPosInput, controlArrows)+"\n");
+                else results = results.concat(neuralNet.trainSupervised(maxEpochs, errorGoal, movesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers, tetrominoPosInput, controlArrows)+"\n");
                 neuralNetworks[expNum] = neuralNet;
             }
             int bestScore = -1;
@@ -186,7 +209,7 @@ class Main {
             System.out.println("\n====================================\n");
             System.out.println("Best score achieved = "+bestScore);
             if (display) {
-                Tetris tetris = new Tetris(display, human, neuralNet, tetrominoPosInput, controlArrows, false);
+                Tetris tetris = new Tetris(display, human, neuralNet, tetrominoPosInput, controlArrows, false, useOptimalMoves);
                 System.out.println("Enter any key to close Tetris window");
                 scanner.next();
                 tetris.close();
