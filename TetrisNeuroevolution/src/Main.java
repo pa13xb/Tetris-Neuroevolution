@@ -29,7 +29,9 @@ class Main {
     /*15*/ private boolean supervisedAI = true; //toggles evaluation using score or time survived
     /*16*/ private double errorGoal = 0.5;
     /*17*/ private boolean useOptimalMoves = false; //toggles usage of the optimal move function to play a game
-    /*18*/ private int movesPerEpoch = 1000; //number of games to play and evaluate for supervised learning
+    /*18*/ private int movesPerEpoch = 250; //number of games to play and evaluate for supervised learning
+    /*19*/ private double[] weights = {1,1,1,1,1,1,1,1,1,1,1,1}; //weights for optimizing fitness
+    /*20*/ private boolean useGA = false; //toggles usage of the genetic algorithm to refine weighs
     /*99: quit program */
 
     private Main(){
@@ -62,6 +64,8 @@ class Main {
             System.out.println("16: Error goal (for supervised learning) = "+errorGoal);
             System.out.println("17: Use optimal moves to play a game = "+useOptimalMoves);
             System.out.println("18: Number of moves per epoch (for supervised learning) = "+movesPerEpoch);
+            System.out.println("19: Manually modify GA weights");
+            System.out.println("20: Use a genetic algorithm to optimize weights = "+useGA);
             try {
                 input = scanner.nextInt();
                 switch(input){
@@ -161,6 +165,29 @@ class Main {
                         input = scanner.nextInt();
                         movesPerEpoch = input;
                         break;
+                    case 19:
+                        System.out.println("Change weights (floating point inputs)");
+                        String[] labels = {
+                                "holes",
+                                "blocks",
+                                "weightedBlocks",
+                                "rowTransitions",
+                                "removedLines",
+                                "connectedHoles",
+                                "columnTransitions",
+                                "altitudeDifference",
+                                "maximumWellDepth",
+                                "sumWellDepths",
+                                "pileHeight",
+                                "landingHeight"};
+                        for(int i = 0; i < weights.length; i++){
+                            System.out.println("Enter weight "+i+": "+labels[i]);
+                            weights[i] = scanner.nextDouble();
+                        }
+                        break;
+                    case 20:
+                        useGA = !useGA;
+                        break;
                     case 99:
                         quit = true;
                         break;
@@ -174,13 +201,42 @@ class Main {
 
     private void runProgram(){
         if(useOptimalMoves){ //to test our evaluation function
-            Tetris tetris = new Tetris(true,false, null, tetrominoPosInput, controlArrows, false, useOptimalMoves);
+            Tetris tetris = new Tetris(true,false, null, null, tetrominoPosInput, controlArrows, false, useOptimalMoves, weights);
             System.out.println("Enter any key to close Tetris window");
             scanner.next();
             tetris.close();
         }
+        else if(useGA){
+            GeneticAlgorithm GA = null;
+            GeneticAlgorithm[] GAList = new GeneticAlgorithm[numExperiments];
+            String results = "";
+            for(int expNum = 0; expNum < numExperiments; expNum++) {
+                System.out.println("====================================\nExperiment #"+(expNum+1)+
+                        " of "+numExperiments+" beginning\n====================================");
+                GA = new GeneticAlgorithm();
+                results = results.concat(GA.train(maxEpochs,scoreGoal,gamesPerEpoch,keepParent,numNetworks,numMutations,numRandomMembers,tetrominoPosInput,useScore));
+                GAList[expNum] = GA;
+            }
+            int bestScore = -1;
+            for(int expNum = 0; expNum < numExperiments; expNum++){
+                if(GAList[expNum].getHighScore() > bestScore){
+                    bestScore = GAList[expNum].getHighScore();
+                    GA = GAList[expNum];
+                }
+            }
+            System.out.println("Printing results now: \n====================================\n");
+            System.out.println(results);
+            System.out.println("\n====================================\n");
+            System.out.println("Best score achieved = "+bestScore);
+            if (display) {
+                Tetris tetris = new Tetris(display, human, null, null, tetrominoPosInput, controlArrows, false, true, GA.getWeights());
+                System.out.println("Enter any key to close Tetris window");
+                scanner.next();
+                tetris.close();
+            }
+        }
         else if(human){
-            Tetris tetris = new Tetris(true,true, null, tetrominoPosInput, controlArrows, false, useOptimalMoves);
+            Tetris tetris = new Tetris(true,true, null, null,tetrominoPosInput, controlArrows, false, useOptimalMoves, weights);
             System.out.println("Enter any key to close Tetris window");
             scanner.next();
             tetris.close();
@@ -192,7 +248,7 @@ class Main {
             for(int expNum = 0; expNum < numExperiments; expNum++) {
                 System.out.println("====================================\nExperiment #"+(expNum+1)+
                         " of "+numExperiments+" beginning\n====================================");
-                neuralNet = new Neuroevolution(layersAndNodes);
+                neuralNet = new Neuroevolution(layersAndNodes, weights);
                 if(!supervisedAI) results = results.concat(neuralNet.train(maxEpochs, scoreGoal, gamesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers, tetrominoPosInput, useScore, controlArrows)+"\n");
                 else results = results.concat(neuralNet.trainSupervised(maxEpochs, errorGoal, movesPerEpoch, keepParent, numNetworks, numMutations, numRandomMembers, tetrominoPosInput, controlArrows)+"\n");
                 neuralNetworks[expNum] = neuralNet;
@@ -209,7 +265,7 @@ class Main {
             System.out.println("\n====================================\n");
             System.out.println("Best score achieved = "+bestScore);
             if (display) {
-                Tetris tetris = new Tetris(display, human, neuralNet, tetrominoPosInput, controlArrows, false, useOptimalMoves);
+                Tetris tetris = new Tetris(display, human, neuralNet, null, tetrominoPosInput, controlArrows, false, useOptimalMoves, weights);
                 System.out.println("Enter any key to close Tetris window");
                 scanner.next();
                 tetris.close();

@@ -7,12 +7,14 @@ class Neuroevolution {
     private int numLayers;  //excludes the input layer
     private int highScore;
     private double[][][] weightsAndBiases;
+    private double[] weights;
 
     /**Constructor: initializes the network with the given architecture (includes input layers)
      *
      * @param layersAndNodes layersAndNodes.length = #layers, layersAndNodes[i] = #nodes in layer i
      */
-    Neuroevolution(int[] layersAndNodes){
+    Neuroevolution(int[] layersAndNodes, double[] weights){
+        this.weights = weights;
         this.layersAndNodes = layersAndNodes;
         numLayers = layersAndNodes.length - 1;
         weightsAndBiases = generateRandomNetwork();
@@ -32,8 +34,8 @@ class Neuroevolution {
         }
     }//constructor2
 
-    /**Generates a random network of weights and biases
-     *
+    /**
+     *Generates a random network of weights and biases
      * @return double[][][] the array of weights and biases
      */
     private double[][][] generateRandomNetwork(){
@@ -50,32 +52,32 @@ class Neuroevolution {
         return weightsAndBiases;
     }//generateRandomNetwork
 
-    /**Allows inputting a network into the class.
-     *
+    /**
+     *Allows inputting a network into the class.
      * @param weightsAndBiases the network weights and biases
      */
     void setWeightsAndBiases(double[][][] weightsAndBiases){
         this.weightsAndBiases = weightsAndBiases;
     }//setWeightsAndBiases
 
-    /**Getter for the weights and biases network
-     *
+    /**
+     *Getter for the weights and biases network
      * @return double[][][] getWeightsAndBiases
      */
     public double[][][] getWeightsAndBiases() {
         return weightsAndBiases;
     }//getWeightsAndBiases
 
-    /**Getter for highscore
-     * 
+    /**
+     * Getter for highscore
      * @return returns the highest score for all the training runs
      */
     public int getHighScore(){
         return highScore;
     }//getHighscore
     
-    /**Generates a number of mutations of the neural network
-     * 
+    /**
+     * Generates a number of mutations of the neural network
      * @param numNetworks the number of new networks to create
      * @param numMutations the number of mutations to make on each new network
      * @return double[][][][] an array of network weightsAndBiases
@@ -114,8 +116,8 @@ class Neuroevolution {
         return result;
     }//mutate
 
-    /**Apply a mutation (this could be modified to include new mutation techniques in the future)
-     * 
+    /**
+     * Apply a mutation (this could be modified to include new mutation techniques in the future)
      * @return double the mutated value
      */
     private double applyMutation(){
@@ -157,8 +159,8 @@ class Neuroevolution {
         return highestIndex;
     }//calculate
 
-    /**This function performs the activation function in the neural network. Parameters can be changed here
-     *
+    /**
+     *This function performs the activation function in the neural network. Parameters can be changed here
      * @param x the value to perform the activation function on
      * @return double: the result of the activation function
      */
@@ -192,7 +194,7 @@ class Neuroevolution {
                 setWeightsAndBiases(networkPopulation[networkNum]); //set the weights to this network one for Tetris calculation purposes
                 int averageScore = 0;
                 for(int gameNum = 0; gameNum < numGamesPerEpoch; gameNum++){
-                    Tetris tetris = new Tetris(false, false, this, tetrominoPosInput, controlArrows, false, false);
+                    Tetris tetris = new Tetris(false, false, this, null, tetrominoPosInput, controlArrows, false, false, weights);
                     if(usingScore) {
                         averageScore += tetris.getScore();
                         if(tetris.getScore() > highScore) highScore = tetris.getScore();
@@ -233,14 +235,15 @@ class Neuroevolution {
                 double averageError = 0.0;
                 int numMovesPlayed = 0;
                 while(numMovesPlayed < movesPerEpoch){
-                    Tetris tetris = new Tetris(false, false, this, tetrominoPosInput, controlArrows, true, false);
+                    Tetris tetris = new Tetris(false, false, this,null, tetrominoPosInput, controlArrows, true, false, weights);
                     tetris.AISetupGameBoard();
                     while(!tetris.getGameOver()){
-                        double error = tetris.AIPlaySupervisedMove(this);
+                        double error = tetris.AIPlaySupervisedMove(this, weights);
                         if(error != -1){
                             numMovesPlayed++;
                             averageError += error;
                         }
+                        if(numMovesPlayed > movesPerEpoch) break;
                     }
                 }
                 aveNetworkErrors[networkNum] = averageError / (double)numMovesPlayed;

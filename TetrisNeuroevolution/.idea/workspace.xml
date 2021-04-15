@@ -2,6 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e885f11-bda6-4803-98ff-3f149d0399b6" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/GeneticAlgorithm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Experiment_Results.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Experiment_Results.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/TetrisNeuroevolution/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TetrisNeuroevolution/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/TetrisNeuroevolution/Neuroevolution.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TetrisNeuroevolution/Neuroevolution.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/TetrisNeuroevolution/Tetris$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TetrisNeuroevolution/Tetris$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/TetrisNeuroevolution/Tetris.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TetrisNeuroevolution/Tetris.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Neuroevolution.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Neuroevolution.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Tetris.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tetris.java" afterDir="false" />
@@ -21,11 +28,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="359">
-              <caret line="83" column="50" lean-forward="true" selection-start-line="83" selection-start-column="50" selection-end-line="83" selection-end-column="50" />
+            <state relative-caret-position="11">
+              <caret line="42" column="67" lean-forward="true" selection-start-line="42" selection-start-column="67" selection-end-line="42" selection-end-column="67" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#11417#11418#0" expanded="true" />
+                <element signature="e#7792#8029#1" />
+                <element signature="e#14551#14552#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -34,12 +42,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Tetris.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="147">
-              <caret line="477" column="23" lean-forward="true" selection-start-line="477" selection-start-column="23" selection-end-line="477" selection-end-column="23" />
+            <state relative-caret-position="11">
+              <caret line="38" column="43" lean-forward="true" selection-start-line="38" selection-start-column="43" selection-end-line="38" selection-end-column="43" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="docComment;method#Tetris#0;class#Tetris#0" />
-                <element signature="method#Tetris#0;class#Tetris#0" />
                 <element signature="docComment;method#setupDisplay#0;class#Tetris#0" />
                 <element signature="method#setupDisplay#0;class#Tetris#0" />
                 <element signature="docComment;method#makeKeyboardListener#0;class#Tetris#0" />
@@ -61,36 +68,71 @@
                 <element signature="docComment;method#makeAIMove#0;class#Tetris#0" />
                 <element signature="method#makeAIMove#0;class#Tetris#0" />
                 <element signature="docComment;method#AISetupGameBoard#0;class#Tetris#0" />
-                <element signature="method#AISetupGameBoard#0;class#Tetris#0" />
+                <element signature="e#18245#18636#0" />
                 <element signature="docComment;method#AIPlaySupervisedMove#0;class#Tetris#0" />
+                <element signature="e#18642#21883#0" />
                 <element signature="e#17299#19005#1" />
                 <element signature="docComment;method#playTurn#0;class#Tetris#0" />
                 <element signature="method#playTurn#0;class#Tetris#0" />
                 <element signature="docComment;method#findOptimalMove#0;class#Tetris#0" />
-                <element signature="method#findOptimalMove#0;class#Tetris#0" />
+                <element signature="e#23907#24460#0" />
                 <element signature="docComment;method#calculateMoveScore#0;class#Tetris#0" />
-                <element signature="method#calculateMoveScore#0;class#Tetris#0" />
+                <element signature="e#24466#30880#0" />
                 <element signature="method#getNewTetromino#0;class#Tetris#0" />
                 <element signature="docComment;method#checkCollision#0;class#Tetris#0" />
                 <element signature="method#checkCollision#0;class#Tetris#0" />
                 <element signature="docComment;method#checkFullLine#0;class#Tetris#0" />
                 <element signature="method#checkFullLine#0;class#Tetris#0" />
+                <element signature="e#33532#33533#0" expanded="true" />
+                <element signature="e#33570#33571#0" expanded="true" />
+                <element signature="e#33601#33602#0" expanded="true" />
+                <element signature="e#33678#33679#0" expanded="true" />
                 <element signature="e#28162#28195#1" />
-                <element signature="e#33122#33123#0" expanded="true" />
+                <element signature="e#33747#33748#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Neuroevolution.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="284">
+              <caret line="240" column="82" selection-start-line="240" selection-start-column="82" selection-end-line="240" selection-end-column="82" />
+              <folding>
+                <element signature="method#Neuroevolution#1;class#Neuroevolution#0" />
+                <element signature="docComment;method#generateRandomNetwork#0;class#Neuroevolution#0" />
+                <element signature="method#generateRandomNetwork#0;class#Neuroevolution#0" />
+                <element signature="docComment;method#setWeightsAndBiases#0;class#Neuroevolution#0" />
+                <element signature="docComment;method#getWeightsAndBiases#0;class#Neuroevolution#0" />
+                <element signature="docComment;method#getHighScore#0;class#Neuroevolution#0" />
+                <element signature="docComment;method#mutate#0;class#Neuroevolution#0" />
+                <element signature="method#mutate#0;class#Neuroevolution#0" />
+                <element signature="docComment;method#applyMutation#0;class#Neuroevolution#0" />
+                <element signature="method#calculate#0;class#Neuroevolution#0" />
+                <element signature="docComment;method#activationFunction#0;class#Neuroevolution#0" />
+                <element signature="method#activationFunction#0;class#Neuroevolution#0" />
+                <element signature="docComment;method#train#0;class#Neuroevolution#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/Neuroevolution.java">
+        <entry file="file://$PROJECT_DIR$/src/GeneticAlgorithm.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="258" column="30" lean-forward="true" selection-start-line="258" selection-start-column="30" selection-end-line="258" selection-end-column="30" />
+            <state relative-caret-position="493">
+              <caret line="29" column="14" lean-forward="true" selection-start-line="29" selection-start-column="14" selection-end-line="29" selection-end-column="14" />
               <folding>
-                <element signature="method#Neuroevolution#1;class#Neuroevolution#0" />
-                <element signature="method#mutate#0;class#Neuroevolution#0" />
-                <element signature="method#calculate#0;class#Neuroevolution#0" />
+                <element signature="docComment;method#applyMutation#0;class#GeneticAlgorithm#0" />
+                <element signature="e#1829#1830#0" expanded="true" />
+                <element signature="e#1905#1906#0" expanded="true" />
+                <element signature="e#204#205#0" expanded="true" />
+                <element signature="e#234#235#0" expanded="true" />
+                <element signature="e#4503#4504#0" expanded="true" />
+                <element signature="e#4541#4542#0" expanded="true" />
+                <element signature="e#4711#4712#0" expanded="true" />
+                <element signature="e#4743#4744#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -142,8 +184,9 @@
         <option value="$PROJECT_DIR$/src/CornerRight.java" />
         <option value="$PROJECT_DIR$/src/Display.java" />
         <option value="$PROJECT_DIR$/src/Tetris.java" />
-        <option value="$PROJECT_DIR$/src/Main.java" />
         <option value="$PROJECT_DIR$/src/Neuroevolution.java" />
+        <option value="$PROJECT_DIR$/src/Main.java" />
+        <option value="$PROJECT_DIR$/src/GeneticAlgorithm.java" />
       </list>
     </option>
   </component>
@@ -228,9 +271,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.12818792" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12818792" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -240,7 +284,7 @@
       <window_info anchor="bottom" id="Messages" order="0" weight="0.3286119" />
       <window_info anchor="bottom" id="Message" order="1" />
       <window_info anchor="bottom" id="Find" order="2" />
-      <window_info active="true" anchor="bottom" id="Run" order="3" sideWeight="0.49966422" visible="true" weight="0.503792" />
+      <window_info anchor="bottom" id="Run" order="3" sideWeight="0.49966422" weight="0.87818694" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.39943343" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
@@ -354,14 +398,35 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/Neuroevolution.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="284">
+          <caret line="240" column="82" selection-start-line="240" selection-start-column="82" selection-end-line="240" selection-end-column="82" />
+          <folding>
+            <element signature="method#Neuroevolution#1;class#Neuroevolution#0" />
+            <element signature="docComment;method#generateRandomNetwork#0;class#Neuroevolution#0" />
+            <element signature="method#generateRandomNetwork#0;class#Neuroevolution#0" />
+            <element signature="docComment;method#setWeightsAndBiases#0;class#Neuroevolution#0" />
+            <element signature="docComment;method#getWeightsAndBiases#0;class#Neuroevolution#0" />
+            <element signature="docComment;method#getHighScore#0;class#Neuroevolution#0" />
+            <element signature="docComment;method#mutate#0;class#Neuroevolution#0" />
+            <element signature="method#mutate#0;class#Neuroevolution#0" />
+            <element signature="docComment;method#applyMutation#0;class#Neuroevolution#0" />
+            <element signature="method#calculate#0;class#Neuroevolution#0" />
+            <element signature="docComment;method#activationFunction#0;class#Neuroevolution#0" />
+            <element signature="method#activationFunction#0;class#Neuroevolution#0" />
+            <element signature="docComment;method#train#0;class#Neuroevolution#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/Tetris.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="147">
-          <caret line="477" column="23" lean-forward="true" selection-start-line="477" selection-start-column="23" selection-end-line="477" selection-end-column="23" />
+        <state relative-caret-position="11">
+          <caret line="38" column="43" lean-forward="true" selection-start-line="38" selection-start-column="43" selection-end-line="38" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="docComment;method#Tetris#0;class#Tetris#0" />
-            <element signature="method#Tetris#0;class#Tetris#0" />
             <element signature="docComment;method#setupDisplay#0;class#Tetris#0" />
             <element signature="method#setupDisplay#0;class#Tetris#0" />
             <element signature="docComment;method#makeKeyboardListener#0;class#Tetris#0" />
@@ -383,45 +448,57 @@
             <element signature="docComment;method#makeAIMove#0;class#Tetris#0" />
             <element signature="method#makeAIMove#0;class#Tetris#0" />
             <element signature="docComment;method#AISetupGameBoard#0;class#Tetris#0" />
-            <element signature="method#AISetupGameBoard#0;class#Tetris#0" />
+            <element signature="e#18245#18636#0" />
             <element signature="docComment;method#AIPlaySupervisedMove#0;class#Tetris#0" />
+            <element signature="e#18642#21883#0" />
             <element signature="e#17299#19005#1" />
             <element signature="docComment;method#playTurn#0;class#Tetris#0" />
             <element signature="method#playTurn#0;class#Tetris#0" />
             <element signature="docComment;method#findOptimalMove#0;class#Tetris#0" />
-            <element signature="method#findOptimalMove#0;class#Tetris#0" />
+            <element signature="e#23907#24460#0" />
             <element signature="docComment;method#calculateMoveScore#0;class#Tetris#0" />
-            <element signature="method#calculateMoveScore#0;class#Tetris#0" />
+            <element signature="e#24466#30880#0" />
             <element signature="method#getNewTetromino#0;class#Tetris#0" />
             <element signature="docComment;method#checkCollision#0;class#Tetris#0" />
             <element signature="method#checkCollision#0;class#Tetris#0" />
             <element signature="docComment;method#checkFullLine#0;class#Tetris#0" />
             <element signature="method#checkFullLine#0;class#Tetris#0" />
+            <element signature="e#33532#33533#0" expanded="true" />
+            <element signature="e#33570#33571#0" expanded="true" />
+            <element signature="e#33601#33602#0" expanded="true" />
+            <element signature="e#33678#33679#0" expanded="true" />
             <element signature="e#28162#28195#1" />
-            <element signature="e#33122#33123#0" expanded="true" />
+            <element signature="e#33747#33748#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="359">
-          <caret line="83" column="50" lean-forward="true" selection-start-line="83" selection-start-column="50" selection-end-line="83" selection-end-column="50" />
+        <state relative-caret-position="11">
+          <caret line="42" column="67" lean-forward="true" selection-start-line="42" selection-start-column="67" selection-end-line="42" selection-end-column="67" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11417#11418#0" expanded="true" />
+            <element signature="e#7792#8029#1" />
+            <element signature="e#14551#14552#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Neuroevolution.java">
+    <entry file="file://$PROJECT_DIR$/src/GeneticAlgorithm.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="258" column="30" lean-forward="true" selection-start-line="258" selection-start-column="30" selection-end-line="258" selection-end-column="30" />
+        <state relative-caret-position="493">
+          <caret line="29" column="14" lean-forward="true" selection-start-line="29" selection-start-column="14" selection-end-line="29" selection-end-column="14" />
           <folding>
-            <element signature="method#Neuroevolution#1;class#Neuroevolution#0" />
-            <element signature="method#mutate#0;class#Neuroevolution#0" />
-            <element signature="method#calculate#0;class#Neuroevolution#0" />
+            <element signature="docComment;method#applyMutation#0;class#GeneticAlgorithm#0" />
+            <element signature="e#1829#1830#0" expanded="true" />
+            <element signature="e#1905#1906#0" expanded="true" />
+            <element signature="e#204#205#0" expanded="true" />
+            <element signature="e#234#235#0" expanded="true" />
+            <element signature="e#4503#4504#0" expanded="true" />
+            <element signature="e#4541#4542#0" expanded="true" />
+            <element signature="e#4711#4712#0" expanded="true" />
+            <element signature="e#4743#4744#0" expanded="true" />
           </folding>
         </state>
       </provider>

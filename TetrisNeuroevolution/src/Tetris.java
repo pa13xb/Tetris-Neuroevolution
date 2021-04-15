@@ -32,13 +32,16 @@ class Tetris {
      * @param supervisedAI boolean to allow the external supervised learning class to control the game for training
      * @param useOptimalMoves boolean to play a game using just the heuristic evaluation function's chosen moves
      */
-    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution, boolean tetrominoPosInput, boolean controlArrows, boolean supervisedAI, boolean useOptimalMoves) {
+    Tetris(boolean showDisplay, boolean humanPlayer, Neuroevolution neuroevolution, GeneticAlgorithm GA, boolean tetrominoPosInput, boolean controlArrows, boolean supervisedAI, boolean useOptimalMoves, double[] weights) {
         this.showDisplay = showDisplay;
         if (showDisplay) setupDisplay();
         else display = null;
         this.controlArrows = controlArrows;
-        if(!supervisedAI) {
-            if(useOptimalMoves) playOptimalMoveGame();
+        if(GA != null) {
+            playOptimalMoveGame(GA.getWeights());
+        }
+        else if(!supervisedAI) {
+            if(useOptimalMoves) playOptimalMoveGame(weights);
             else if (humanPlayer) humanPlayGame();
             else AIPlayGame(neuroevolution, tetrominoPosInput);
         }
@@ -365,22 +368,25 @@ class Tetris {
     }//AIPlayGame
 
     /**
-     * Plays a game using the evaluation function's move choices
+     * Plays a whole game using the evaluation function's move choices
      */
-    private void playOptimalMoveGame(){
+    private void playOptimalMoveGame(double[] weights){
         AISetupGameBoard();
+        boolean usingDisplay = showDisplay;
         while(!gameOver) {
             timeSurvived++;
             playTurn();
             if (tetromino != null && !gameOver) { //need to wait for a new tetramino to be placed
-                showDisplay = false;
-                int move = findOptimalMove();
-                showDisplay = true;
+                if(usingDisplay) showDisplay = false;
+                int move = findOptimalMove(weights);
+                if(usingDisplay) showDisplay = true;
                 makeAIMove(move);
             }
         }
-        display.gameOver(getScore(), getTimeSurvived());
-        display.repaint();
+        if(usingDisplay) {
+            display.gameOver(getScore(), getTimeSurvived());
+            display.repaint();
+        }
     }//playOptimalMoveGame
 
     /**
@@ -474,7 +480,7 @@ class Tetris {
      * @param neuroevolution the AI used to calculate the move
      * @return //the error of the AI's move compared to the evaluation function
      */
-    double AIPlaySupervisedMove(Neuroevolution neuroevolution) {
+    double AIPlaySupervisedMove(Neuroevolution neuroevolution, double[] weights) {
         timeSurvived++;
         playTurn();
         if (tetromino != null && !gameOver) { //need to wait for a new tetramino to be placed
@@ -520,9 +526,9 @@ class Tetris {
                 }
             } //getting input Array
             int move = neuroevolution.calculate(inputArray); //use the input array to calculate a move
-            double score = calculateMoveScore(move); //higher score = bad
-            int optimalMove = findOptimalMove();
-            double optimalScore = calculateMoveScore(optimalMove);
+            double score = calculateMoveScore(move, weights); //higher score = bad
+            int optimalMove = findOptimalMove(weights);
+            double optimalScore = calculateMoveScore(optimalMove, weights);
             {//perform the optimal move
                 if (controlArrows) { //4 outputs
                     if (optimalMove == 0) moveRight();
@@ -533,7 +539,8 @@ class Tetris {
                     makeAIMove(optimalMove);
                 }
             }//perform a move
-            return score - optimalScore; //error
+            //return optimalScore - score; //error (higher score = bad)
+            return score - optimalScore; //error (higher score = bad)
         }
         return -1;
     }//AIPlaySupervisedMove
@@ -594,11 +601,11 @@ class Tetris {
      *
      * @return the index of the move with the lowest score
      */
-    private int findOptimalMove(){
+    private int findOptimalMove(double[] weights){
         double minScore = Double.MAX_VALUE;
         int moveIndex = 0;
         for(int i = 0; i < 40; i++) {
-            double score = calculateMoveScore(i);
+            double score = calculateMoveScore(i, weights);
             if(score < minScore) {
                 minScore = score;
                 moveIndex = i;
@@ -612,7 +619,7 @@ class Tetris {
      * @param move the move to calculate
      * @return the score (higher = worse) of the move
      */
-    private double calculateMoveScore(int move) {
+    private double calculateMoveScore(int move, double weights[]) {
         int holes, blocks, weightedBlocks, rowTransitions,removedLines,connectedHoles,columnTransitions;
         int altitudeDifference,maximumWellDepth,sumWellDepths,pileHeight,landingHeight;
         //save the previous board state and global variables:
@@ -756,18 +763,18 @@ class Tetris {
             tetromino.rotate();
         }
         double result = 0;
-        result += holes;
-        result += blocks;
-        result += weightedBlocks;
-        result += rowTransitions;
-        result += removedLines;
-        result += connectedHoles;
-        result += columnTransitions;
-        result += altitudeDifference;
-        result += maximumWellDepth;
-        result += sumWellDepths;
-        result += pileHeight;
-        result += landingHeight;
+        result += weights[0] * holes;
+        result += weights[1] * blocks;
+        result += weights[2] * weightedBlocks;
+        result += weights[3] * rowTransitions;
+        result += weights[4] * removedLines;
+        result += weights[5] * connectedHoles;
+        result += weights[6] * columnTransitions;
+        result += weights[7] * altitudeDifference;
+        result += weights[8] * maximumWellDepth;
+        result += weights[9] * sumWellDepths;
+        result += weights[10] * pileHeight;
+        result += weights[11] * landingHeight;
         return result;
     }//calculateMoveScore
 
