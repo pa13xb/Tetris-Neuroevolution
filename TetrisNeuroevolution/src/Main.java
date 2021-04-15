@@ -15,7 +15,7 @@ class Main {
     /*1*/ private boolean human = false;
     /*2*/ private boolean display = true;
     /*3*/ private int maxEpochs = 100;
-    /*4*/ private int scoreGoal = 100000;
+    /*4*/ private int scoreGoal = -1;
     /*5*/ private int gamesPerEpoch = 10;
     /*6*/ private boolean keepParent = true;
     /*7*/ private int numNetworks = 10;
@@ -31,7 +31,8 @@ class Main {
     /*17*/ private boolean useOptimalMoves = false; //toggles usage of the optimal move function to play a game
     /*18*/ private int movesPerEpoch = 250; //number of games to play and evaluate for supervised learning
     /*19*/ private double[] weights = {1,1,1,1,1,1,1,1,1,1,1,1}; //weights for optimizing fitness
-    /*20*/ private boolean useGA = false; //toggles usage of the genetic algorithm to refine weighs
+    /*20*/ private boolean useGA = false; //toggles usage of the genetic algorithm to refine weights
+    /*21*/ private int numElites = 3; // number of elite games added into mutations
     /*99: quit program */
 
     private Main(){
@@ -66,6 +67,7 @@ class Main {
             System.out.println("18: Number of moves per epoch (for supervised learning) = "+movesPerEpoch);
             System.out.println("19: Manually modify GA weights");
             System.out.println("20: Use a genetic algorithm to optimize weights = "+useGA);
+            System.out.println("21: Specify number of elites to bring to next generation = "+numElites);
             try {
                 input = scanner.nextInt();
                 switch(input){
@@ -188,6 +190,10 @@ class Main {
                     case 20:
                         useGA = !useGA;
                         break;
+                    case 21:
+                        System.out.println("Enter number of elites");
+                        numElites = scanner.nextInt();
+                        break;
                     case 99:
                         quit = true;
                         break;
@@ -214,7 +220,7 @@ class Main {
                 System.out.println("====================================\nExperiment #"+(expNum+1)+
                         " of "+numExperiments+" beginning\n====================================");
                 GA = new GeneticAlgorithm();
-                results = results.concat(GA.train(maxEpochs,scoreGoal,gamesPerEpoch,keepParent,numNetworks,numMutations,numRandomMembers,tetrominoPosInput,useScore));
+                results = results.concat(GA.train(maxEpochs,scoreGoal,gamesPerEpoch,keepParent,numNetworks,numMutations,numRandomMembers,tetrominoPosInput,useScore, numElites));
                 GAList[expNum] = GA;
             }
             int bestScore = -1;
@@ -229,7 +235,7 @@ class Main {
             System.out.println("\n====================================\n");
             System.out.println("Best score achieved = "+bestScore);
             if (display) {
-                Tetris tetris = new Tetris(display, human, null, null, tetrominoPosInput, controlArrows, false, true, GA.getWeights());
+                Tetris tetris = new Tetris(display, false, null, null, tetrominoPosInput, controlArrows, false, true, GA.getWeights());
                 System.out.println("Enter any key to close Tetris window");
                 scanner.next();
                 tetris.close();
