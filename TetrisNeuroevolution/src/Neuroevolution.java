@@ -9,8 +9,8 @@ class Neuroevolution {
     private double[][][] weightsAndBiases;
     private double[] weights;
 
-    /**Constructor: initializes the network with the given architecture (includes input layers)
-     *
+    /**
+     *Constructor: initializes the network with the given architecture (includes input layers)
      * @param layersAndNodes layersAndNodes.length = #layers, layersAndNodes[i] = #nodes in layer i
      */
     Neuroevolution(int[] layersAndNodes, double[] weights){
@@ -20,8 +20,8 @@ class Neuroevolution {
         weightsAndBiases = generateRandomNetwork();
     }//constructor1
 
-    /**Other Constructor: takes a preset neural network
-     * 
+    /**
+     * Other Constructor: takes a preset neural network
      * @param weightsAndBiases the preset neural network of weights and biases
      */
     Neuroevolution(double[][][] weightsAndBiases){
