@@ -102,7 +102,7 @@ class Neuroevolution {
                 int randLayer = (int)(Math.random() * weightsAndBiases.length);
                 int randNode = (int)(Math.random() * weightsAndBiases[randLayer].length);
                 int randConnection = (int)(Math.random() * weightsAndBiases[randLayer][randNode].length);
-                mutatedNetwork[randLayer][randNode][randConnection] = applyMutation();
+                mutatedNetwork[randLayer][randNode][randConnection] = applyMutation(mutatedNetwork[randLayer][randNode][randConnection]);
             }
             result[mutation] = mutatedNetwork;
         }
@@ -120,8 +120,23 @@ class Neuroevolution {
      * Apply a mutation (this could be modified to include new mutation techniques in the future)
      * @return double the mutated value
      */
-    private double applyMutation(){
-        return Math.random() * 2 - 1; //random value between -1 and 1
+    private double applyMutation(double x){
+        int randomSelection = (int)(Math.random() * 6);
+        switch(randomSelection){
+            case 0:
+                return Math.random() * 2 - 1; //random value between -1 and 1
+            case 1:
+                return Math.random() * 4 - 2; //random value between -2 and 2
+            case 2:
+                return x * Math.random(); //x * random value between 0 and 1
+            case 3:
+                return x / Math.random(); //x / random value between 0 and 1
+            case 4:
+                return (x*2)/Math.random(); // x * 2 / random value between 0 and 1
+            case 5:
+                return x - Math.random(); // x - random value between 0 and 1
+        }
+        return Math.random();
     }
 
     int calculate(int[] inputArray){

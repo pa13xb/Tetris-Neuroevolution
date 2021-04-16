@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.io.*;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -6,10 +5,6 @@ import java.util.Scanner;
 class Main {
 
     private Scanner scanner;
-
-    int tileSize = 30;
-    int width = 10;
-    int height = 20;
 
     //Parameters:
     /*0: run program */
@@ -31,15 +26,30 @@ class Main {
     /*16*/ private double errorGoal = 0.5;
     /*17*/ private boolean useOptimalMoves = false; //toggles usage of the optimal move function to play a game
     /*18*/ private int movesPerEpoch = 250; //number of games to play and evaluate for supervised learning
-    /*19*/ private double[] weights = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; //weights for optimizing fitness
+    /*19*/ //private double[] weights = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; //weights for optimizing fitness
+    /*19*/private double[] weights = { //Weights from test 1 (the best weight setup found)
+            -0.45891319930,
+            -0.02082584336,
+            0.79958303395,
+            0.56152148032,
+            -1.24236565997,
+            0.57727685301,
+            0.46491728127,
+            -1.62548398385,
+            0.33399294123,
+            0.23761344856,
+            0.72508749642,
+            2.44337355687
+    };
     /*20*/ private boolean useGA = true; //toggles usage of the genetic algorithm to refine weights
     /*21*/ private int numElites = 3; // number of elite games added into mutations
     /*22*/ private boolean saveBestGAResult = false;
-    /*22*/ private boolean saveBestNNResult = false;
+    /*23*/ private boolean saveBestNNResult = false;
+    /*23*/ private boolean testGASetup = false;
     /*99: quit program */
 
     private Main() {
-        if(false){//print NN results from overnight test
+        if(false){//small function to print NN results from overnight test
             try {
                 File inputFile = new File("C:\\Users\\phili\\Documents\\Github_Repos\\Tetris-Neuroevolution\\TetrisNeuroevolution\\NN0,true,100,0.5,250,10,30,1,false");
                 FileInputStream fileInputStream = new FileInputStream(inputFile);
@@ -50,9 +60,9 @@ class Main {
                 e.printStackTrace();
             }
         }//print NN results from overnight test
-        else if (false) {//print GA results from overnight test
+        else if (false) {//small function to print GA results from overnight test
             try {
-                File inputFile = new File("C:\\Users\\phili\\Documents\\Github_Repos\\Tetris-Neuroevolution\\TetrisNeuroevolution\\5980,100,10,10,30,1");
+                File inputFile = new File("C:\\Users\\phili\\Documents\\Github_Repos\\Tetris-Neuroevolution\\TetrisNeuroevolution\\GA11080,40,30,10,1,1");
                 FileInputStream fileInputStream = new FileInputStream(inputFile);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
                 weights = (double[]) objectInputStream.readObject();
@@ -60,7 +70,7 @@ class Main {
                     System.out.print(d + "\t");
                 }
                 System.out.println();
-                inputFile = new File("C:\\Users\\phili\\Documents\\Github_Repos\\Tetris-Neuroevolution\\TetrisNeuroevolution\\5980 training data");
+                inputFile = new File("C:\\Users\\phili\\Documents\\Github_Repos\\Tetris-Neuroevolution\\TetrisNeuroevolution\\GA11080 training data");
                 fileInputStream = new FileInputStream(inputFile);
                 objectInputStream = new ObjectInputStream(fileInputStream);
                 System.out.print((String) objectInputStream.readObject());
@@ -104,6 +114,7 @@ class Main {
                 System.out.println("21: Specify number of elites to bring to next generation = " + numElites);
                 System.out.println("22: Run GA experiments overnight and save results = " + saveBestGAResult);
                 System.out.println("23: Run NN experiments overnight and save results = " + saveBestNNResult);
+                System.out.println("24: Run a number of experiments (games) to test a GA weight setup = " + testGASetup);
                 try {
                     input = scanner.nextInt();
                     switch (input) {
@@ -235,6 +246,9 @@ class Main {
                         case 23:
                             saveBestNNResult = !saveBestNNResult;
                             break;
+                        case 24:
+                            testGASetup = !testGASetup;
+                            break;
                         case 99:
                             quit = true;
                             break;
@@ -248,14 +262,28 @@ class Main {
     }//constructor
 
     private void runProgram() {
-        if (saveBestGAResult) {
+        if(testGASetup){
+            int highscore = 0;
+            double averageScore = 0.0;
+            for(int i = 0 ; i < numExperiments; i++){
+                Tetris tetris = new Tetris(false,false,null,null,false,false,false,true,weights);
+                int score = tetris.getScore();
+                averageScore += score;
+                if(score > highscore) highscore = score;
+                System.out.println("Game "+i+" finished, score = "+score);
+            }
+            averageScore = averageScore / numExperiments;
+            System.out.println("Highscore = "+highscore+", Average Score = "+averageScore);
+        }
+        else if (saveBestGAResult) {
             int numRuns = 12;
+            useScore = true;
             maxEpochs = 40;
             scoreGoal = -1;
-            int[] gamesPerEpochList = {30, 65, 100, 30, 30, 30, 30, 30, 30, 30, 30, 30};
-            int[] numNetworksList = {10, 10, 10, 10, 20, 30, 10, 10, 10, 10, 10, 10};
-            int[] numMutationsList = {1, 1, 1, 1, 1, 1, 1, 3, 5, 1, 1, 1};
-            int[] numRandomMembersList = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 5,};
+            int[] gamesPerEpochList =   {30,65, 100, 30, 30, 30, 30, 30, 30, 30, 30, 30};
+            int[] numNetworksList =     {10,10,  10, 10, 20, 30, 10, 10, 10, 10, 10, 10};
+            int[] numMutationsList =    {1,  1,   1,  1,  1,  1,  1,  3,  5,  1,  1,  1};
+            int[] numRandomMembersList ={1,  1,   1,  1,  1,  1,  1,  1,  1,  1,  3,  5,};
             for (int run = 0; run < numRuns; run++) {
                 gamesPerEpoch = gamesPerEpochList[run];
                 numNetworks = numNetworksList[run];

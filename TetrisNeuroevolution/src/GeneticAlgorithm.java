@@ -21,7 +21,7 @@ class GeneticAlgorithm {
             result[weightNum] = Math.random() * 2 - 1;
         }
         return result;
-    }
+    }//generateRandomWeights
 
     /**
      * Creates a number of mutated weights
