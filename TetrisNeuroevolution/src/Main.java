@@ -2,13 +2,26 @@ import java.io.*;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+/**
+ * This is the main class, which handles program setup and allows user input through command line.
+ * There are many options and parameters to select. Once 0 is selected, runProgram is called
+ * To play a human player game, ensure option 1 is true
+ * To play an AI game using the optimal weights we found, ensure option 17 is true and 1 is false
+ * To run a training experiment using the genetic algorithm, ensure option 20 is true
+ * To run multiple (even thousands) test runs, modify the number of experiments (option 8) and ensure option 23 is true
+ *
+ * COSC 4P80 Final Project, Brock University
+ * April 16, 2021
+ * @author Philip Akkerman, 5479613, pa13xb@brocku.ca
+ * @author David Hasler, 6041321, dh15pd@brocku.ca
+ */
 class Main {
 
     private Scanner scanner;
 
     //Parameters:
     /*0: run program */
-    /*1*/ private boolean human = false;
+    /*1*/ private boolean human = true;
     /*2*/ private boolean display = true;
     /*3*/ private int maxEpochs = 100;
     /*4*/ private int scoreGoal = -1;
@@ -24,7 +37,7 @@ class Main {
     /*14*/ private boolean controlArrows = false; //toggles evaluation using score or time survived
     /*15*/ private boolean supervisedAI = true; //toggles evaluation using score or time survived
     /*16*/ private double errorGoal = 0.5;
-    /*17*/ private boolean useOptimalMoves = false; //toggles usage of the optimal move function to play a game
+    /*17*/ private boolean useOptimalMoves = true; //toggles usage of the optimal move function to play a game
     /*18*/ private int movesPerEpoch = 250; //number of games to play and evaluate for supervised learning
     /*19*/ //private double[] weights = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; //weights for optimizing fitness
     /*19*/private double[] weights = { //Weights from test 1 (the best weight setup found)
@@ -48,6 +61,9 @@ class Main {
     /*23*/ private boolean testGASetup = false;
     /*99: quit program */
 
+    /**
+     * Main constructor. Controls the parameters and program setup with user input
+     */
     private Main() {
         if(false){//small function to print NN results from overnight test
             try {
@@ -261,6 +277,9 @@ class Main {
         }
     }//constructor
 
+    /**
+     * This function runs the Tetris program and/or AI training depending on the user options selecte
+     */
     private void runProgram() {
         if(testGASetup){
             int highscore = 0;
@@ -274,6 +293,12 @@ class Main {
             }
             averageScore = averageScore / numExperiments;
             System.out.println("Highscore = "+highscore+", Average Score = "+averageScore);
+        }
+        else if (useOptimalMoves) { //to test our evaluation function
+            Tetris tetris = new Tetris(true, false, null, null, tetrominoPosInput, controlArrows, false, useOptimalMoves, weights);
+            System.out.println("Enter any key to close Tetris window");
+            scanner.next();
+            tetris.close();
         }
         else if (saveBestGAResult) {
             int numRuns = 12;
@@ -345,12 +370,6 @@ class Main {
                     System.out.println("IO Exception caught in saving Neural Network");
                 }
             }
-        }
-        else if (useOptimalMoves) { //to test our evaluation function
-            Tetris tetris = new Tetris(true, false, null, null, tetrominoPosInput, controlArrows, false, useOptimalMoves, weights);
-            System.out.println("Enter any key to close Tetris window");
-            scanner.next();
-            tetris.close();
         }
         else if (human) {
             Tetris tetris = new Tetris(true, true, null, null, tetrominoPosInput, controlArrows, false, useOptimalMoves, weights);

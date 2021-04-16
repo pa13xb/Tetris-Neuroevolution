@@ -1,26 +1,36 @@
 import javax.swing.*;
 import java.awt.event.*;
-
+/**
+ * This is the Tetris class, which implements the game of Tetris. It holds functions which allow
+ * a human player to play Tetris or an AI using the neuroevolution class or the genetic algorithm
+ * class to learn and play Tetris as well. It also allows a game to be played with the moves calculated
+ * from the evaluation function, with a given set of weights.
+ *
+ * COSC 4P80 Final Project, Brock University
+ * April 16, 2021
+ * @author Philip Akkerman, 5479613, pa13xb@brocku.ca
+ * @author David Hasler, 6041321, dh15pd@brocku.ca
+ */
 class Tetris {
 
-    private int width = 10;
-    private int height = 22;
-    private int tileSize = 30;
+    private int width = 10; //default Tetris width
+    private int height = 22; //default Tetris height + 2 to allow for rotation at the top of the board
+    private int tileSize = 30; //size of a tile for image display
     private int gameBoard[][] = new int[height][width]; //0: empty, otherwise int represents colour
-    private Display display;
-    private JFrame jFrame = new JFrame();
-    private Tetromino tetromino = null;
-    private boolean showDisplay;
-    private boolean newBlock;
-    private boolean downArrow = false;
-    private boolean gameOver;
-    private boolean quit;
-    private int animationDelay = 300;
-    private int originalAnimationDelay = animationDelay;
-    private int newBlockDelay = 0;
-    private int score = 0;
-    private int timeSurvived = 0;
-    private boolean controlArrows;
+    private Display display; //the JPanel extension class that handles displaying the Tetris game
+    private JFrame jFrame = new JFrame(); //The JFrame which holds the Display
+    private Tetromino tetromino = null; //The currently controlled Tetrimino
+    private boolean showDisplay; //boolean whether to display the Tetris game being played
+    private boolean newBlock; //boolean indicating whether a Tetrimino has collided and a new one must be made
+    private boolean downArrow = false; //boolean indicating that the down arrow is being held to speed up animation
+    private boolean gameOver; //boolean indicating that the game has finished
+    private boolean quit; //boolean to indicate that the quit button has been selected
+    private int animationDelay = 300; //The animation delay which controls animation speed
+    private int originalAnimationDelay = animationDelay; //Storage of the original animation delay for when down arrow changes it
+    private int newBlockDelay = 0; //A delay is used to spawn a new block if the down arrow is being held
+    private int score = 0; //The current score of the game
+    private int timeSurvived = 0; //The current time survived
+    private boolean controlArrows; //Boolean whether the AI controls arrow keys or one of the 40 possible moves
 
     /**
      * Constructor
@@ -279,7 +289,7 @@ class Tetris {
     }//humanPlayGame
 
     /**
-     * Plays a whole game using an AI
+     * Plays a whole game using a neuroevolution AI (for unsupervised learning)
      * @param neuroevolution  the AI to play the game
      * @param tetrominoPosInput boolean whether to include the binary array describing the tetromino's position
      */
@@ -599,6 +609,7 @@ class Tetris {
     /**
      * Checks all 40 possible moves and returns the move with the lowest move score
      *
+     * @param weights the weights used to find the optimal move
      * @return the index of the move with the lowest score
      */
     private int findOptimalMove(double[] weights){
@@ -617,6 +628,7 @@ class Tetris {
     /**
      * Calculates the score of a move using an heuristic evaluation function of the board's layout after the move
      * @param move the move to calculate
+     * @param weights the weights to use to weigh each evaluation attribute
      * @return the score (higher = worse) of the move
      */
     private double calculateMoveScore(int move, double weights[]) {
@@ -778,7 +790,10 @@ class Tetris {
         return result;
     }//calculateMoveScore
 
-    /**Creates a new random tetromino */
+    /** Creates a new random Tetromino
+    *
+    * @return Tetrimino representing the new random Tetrimino
+    */
     private Tetromino getNewTetromino() {
         int tetrominoIndex = (int) (Math.random() * 7 + 1);
         Tetromino newTetromino;

@@ -1,3 +1,12 @@
+/**
+ * This is the CornerLeft class, which handles the Tetrimino type, rotation and position
+ * of a left corner piece.
+ *
+ * COSC 4P80 Final Project, Brock University
+ * April 16, 2021
+ * @author Philip Akkerman, 5479613, pa13xb@brocku.ca
+ * @author David Hasler, 6041321, dh15pd@brocku.ca
+ */
 public class CornerLeft implements Tetromino{
 
     private int posX;
